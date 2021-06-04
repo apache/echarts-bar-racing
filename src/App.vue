@@ -1,41 +1,32 @@
 <template>
-  <!-- <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" /> -->
-  <h1>Apache ECharts 动态排序柱状图生成工具</h1>
-  <p>This is content</p>
+<el-container>
+    <el-aside>
+        <h3>Side Nav</h3>
+    </el-aside>
+    <el-main>
+        <BTable/>
+    </el-main>
+</el-container>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
-// import HelloWorld from './components/HelloWorld.vue'
+<script lang='ts' setup>
 
-export default defineComponent({
-  name: 'App',
-  components: {
-    // HelloWorld
-  }
-})
+import BTable from './components/BTable.vue';
+
 </script>
 
-<style>
-#table-row {
-  margin: 0;
-}
-#table-panel {
-  border: 1px solid #eee;
-  height: 600px;
-  overflow: hidden;
-}
-#bar-race-preview {
-  width: 100%;
-  height: 400px;
-  margin: 30px 0;
-}
-#bar-race-preview div, #bar-race-preview canvas {
-  width: 100% !important;
-  height: 100% !important;
-}
-.btn {
-  margin-right: 10px;
+<style scoped lang="scss">
+#echarts-spa-app {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: #2c3e50;
+
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
 }
 </style>

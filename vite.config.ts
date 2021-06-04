@@ -1,14 +1,17 @@
-import {defineConfig} from 'vite';
+import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import config from './config/env.asf';
-
-const dist = '_generated';
+const { resolve } = require('path');
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: './',
-  plugins: [vue()],
-  build: {
-    outDir: dist + '/zh'
-  }
-})
+    base: './',
+    build: {
+        rollupOptions: {
+            input: {
+                // Use body.html when deploying
+                main: resolve(__dirname, '_body.html')
+            }
+        }
+    },
+    plugins: [vue()]
+});
