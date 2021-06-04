@@ -1,8 +1,8 @@
 <template>
 <el-container>
-    <el-aside>
+    <!-- <el-aside>
         <h3>Side Nav</h3>
-    </el-aside>
+    </el-aside> -->
     <el-main>
         <BTable/>
     </el-main>
@@ -28,5 +28,13 @@ import BTable from './components/BTable.vue';
     right: 0;
     top: 0;
     bottom: 0;
+}
+
+.el-container {
+    height: 100%;
+}
+
+.el-main {
+    padding: 5px;
 }
 </style>

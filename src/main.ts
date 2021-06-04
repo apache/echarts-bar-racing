@@ -5,6 +5,7 @@ import en from './i18n/en-US';
 
 import ElementPlus from 'element-plus';
 import 'element-plus/lib/theme-chalk/index.css';
+import './index.css';
 import App from './App.vue';
 
 
