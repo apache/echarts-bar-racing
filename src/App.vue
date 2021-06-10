@@ -1,17 +1,14 @@
 <template>
 <el-container>
-    <!-- <el-aside>
-        <h3>Side Nav</h3>
-    </el-aside> -->
     <el-main>
-        <BTable/>
+        <BBody/>
     </el-main>
 </el-container>
 </template>
 
 <script lang='ts' setup>
 
-import BTable from './components/BTable.vue';
+import BBody from './components/BBody.vue';
 
 </script>
 
