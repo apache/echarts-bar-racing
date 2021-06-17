@@ -27,10 +27,22 @@
                             <el-input
                                 id="input-max"
                                 type="number"
-                                value="10"
+                                value=""
                                 size="medium"
                                 class="col-span-2"
                                 v-model="maxDataCnt"
+                            >
+                            </el-input>
+                        </div>
+                        <div class="grid grid-cols-3 form-row">
+                            <label class="col-span-1">显示排名上限</label>
+                            <el-input
+                                id="input-animation-duration"
+                                type="number"
+                                value="5000"
+                                size="medium"
+                                class="col-span-2"
+                                v-model="animationDuration"
                             >
                             </el-input>
                         </div>
@@ -52,6 +64,8 @@
                 <BChart
                     :title="title"
                     :chartData="chartData"
+                    :maxDataCnt="maxDataCnt"
+                    :animationDuration="animationDuration"
                 />
             </el-card>
         </div>
@@ -68,8 +82,9 @@ export default defineComponent({
     data() {
         return {
             title: '汽车销量',
-            maxDataCnt: 10,
-            chartData: null
+            maxDataCnt: null,
+            chartData: null,
+            animationDuration: 5000
         }
     },
     components: {

@@ -1,7 +1,7 @@
 <template>
     <div>
         <div slot="header" class="clearfix text-base">
-            预览{{title}}
+            预览
             <a href="#">
                 <i class="el-icon-refresh"></i>
             </a>
@@ -18,6 +18,17 @@
 import {defineComponent} from 'vue';
 import * as echarts from 'echarts';
 
+const colorAll = [
+    '#5470c6',
+    '#91cc75',
+    '#fac858',
+    '#ee6666',
+    '#73c0de',
+    '#3ba272',
+    '#fc8452',
+    '#9a60b4',
+    '#ea7ccc'
+];
 const headerLength = 2;
 let chart: echarts.ECharts;
 
@@ -25,7 +36,9 @@ export default defineComponent({
     name: 'BChart',
     props: {
         title: String,
-        chartData: Array
+        chartData: Array,
+        maxDataCnt: Number,
+        animationDuration: Number
     },
     data() {
         return {
@@ -38,25 +51,31 @@ export default defineComponent({
         }
     },
     mounted() {
-        chart = echarts.init(this.$refs.chart as HTMLElement);
     },
     methods: {
         run() {
-            if (!chart) {
-                return;
+            this.clearTimeoutHandlers();
+            if (chart) {
+                chart.dispose();
             }
+
+            chart = echarts.init(this.$refs.chart as HTMLElement);
+            const animationDuration = this.animationDuration || 5000;
+
             const option = {
                 dataset: {
                     source: this.chartData
                 },
                 xAxis: {
-                    type: 'value'
+                    type: 'value',
+                    max: 'dataMax'
                 },
                 yAxis: {
                     type: 'category',
                     inverse: true,
                     animationDuration: 300,
-                    animationDurationUpdate: 300
+                    animationDurationUpdate: 300,
+                    max: this.maxDataCnt ? this.maxDataCnt - 1 : null
                 },
                 series: [{
                     id: 'bar',
@@ -68,13 +87,25 @@ export default defineComponent({
                     realtimeSort: true,
                     label: {
                         show: true,
-                        position: 'right'
+                        position: 'right',
+                        valueAnimation: true
+                    },
+                    itemStyle: {
+                        color: param => {
+                            return param.data[1] || colorAll[param.dataIndex % colorAll.length];
+                        }
                     }
                 }],
                 grid: {
                     right: 60
                 },
-                animationDurationUpdate: 5000,
+                title: {
+                    text: this.title,
+                    left: 10,
+                    top: 10
+                },
+                animationDuration: 0,
+                animationDurationUpdate: animationDuration,
                 animationEasing: 'linear',
                 animationEasingUpdate: 'linear'
             };
@@ -100,7 +131,7 @@ export default defineComponent({
                         });
                         that.removeTimeoutHandlers(timeout);
                     };
-                    timeout = window.setTimeout(timeoutCb, i * 5000);
+                    timeout = window.setTimeout(timeoutCb, i * animationDuration);
                     that.timeoutHandlers.push(timeout);
                 })(i);
             }
@@ -109,8 +140,8 @@ export default defineComponent({
         clearTimeoutHandlers() {
             for (let i = 0; i < this.timeoutHandlers.length; ++i) {
                 clearTimeout(this.timeoutHandlers[i]);
-                this.timeoutHandlers.splice(i, 1);
             }
+            this.timeoutHandlers = [];
         },
 
         removeTimeoutHandlers(handler: number) {
