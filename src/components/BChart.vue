@@ -2,7 +2,7 @@
     <div>
         <div slot="header" class="clearfix text-base">
             预览
-            <a href="#">
+            <a href="javascript:;" @click="run()">
                 <i class="el-icon-refresh"></i>
             </a>
         </div>
@@ -60,18 +60,16 @@ export default defineComponent({
             }
 
             chart = echarts.init(this.$refs.chart as HTMLElement);
-            const animationDuration = this.animationDuration || 5000;
+            const animationDuration =/* this.animationDuration ||*/ 5000;
 
             const option = {
-                dataset: {
-                    source: this.chartData
-                },
                 xAxis: {
                     type: 'value',
                     max: 'dataMax'
                 },
                 yAxis: {
                     type: 'category',
+                    data: (this.chartData[0] as string[]).slice(1),
                     inverse: true,
                     animationDuration: 300,
                     animationDurationUpdate: 300,
@@ -80,30 +78,37 @@ export default defineComponent({
                 series: [{
                     id: 'bar',
                     type: 'bar',
-                    encode: {
-                        x: 2
-                    },
+                    data: (this.chartData[headerLength] as string[]).slice(1).map(str => parseInt(str, 10)),
                     seriesLayoutBy: 'row',
                     realtimeSort: true,
                     label: {
                         show: true,
-                        position: 'right',
-                        valueAnimation: true
+                        position: 'right'
                     },
                     itemStyle: {
-                        color: param => {
-                            return param.data[1] || colorAll[param.dataIndex % colorAll.length];
+                        color: (param: any) => {
+                            return (this.chartData[1] as string[])[param.dataIndex + 1] || colorAll[param.dataIndex % colorAll.length];
                         }
                     }
                 }],
                 grid: {
-                    right: 60
+                    right: 60,
+                    bottom: 30
                 },
-                title: {
+                title: [{
+                    text: (this.chartData as any)[headerLength][0],
+                    right: 20,
+                    bottom: 15,
+                    textStyle: {
+                        color: '#ccc',
+                        opacity: 0.3,
+                        fontSize: 70
+                    }
+                }, {
                     text: this.title,
                     left: 10,
                     top: 10
-                },
+                }],
                 animationDuration: 0,
                 animationDurationUpdate: animationDuration,
                 animationEasing: 'linear',
@@ -118,14 +123,12 @@ export default defineComponent({
                     let timeout: number;
                     const timeoutCb = function () {
                         chart.setOption({
-                            // title: [{
-                            //     text: getDataName(i)
-                            // }],
                             series: [{
                                 type: 'bar',
                                 id: 'bar',
-                                encode: {
-                                    x: i + headerLength + 1
+                                data: (that.chartData[headerLength + i + 1] as string[]).slice(1).map(str => parseInt(str, 10)),
+                                label: {
+                                    valueAnimation: true
                                 }
                             }]
                         });
