@@ -1,7 +1,10 @@
 <template>
     <div>
         <div slot='header' class='clearfix text-base'>
-            数据
+            {{$t('data')}}
+            <a href="javascript:;" @click="run()">
+                <i class="el-icon-refresh"></i>
+            </a>
         </div>
         <div ref='table' id='table-panel' class='overflow-auto absolute bottom-4 top-14 left-5 right-5 border'>
         </div>
@@ -12,9 +15,25 @@
 import Handsontable from 'handsontable';
 import {defineComponent} from 'vue';
 import * as _ from 'lodash';
+import * as Color from 'color';
 
 const headerLength = 2;
 export type ChartData = string[][];
+
+function colorRenderer(instance, td, row, col, prop, value) {
+    Handsontable.renderers.TextRenderer.apply(this, arguments);
+    if (col === 0 || value === '' || !value) {
+        return td;
+    }
+    try {
+        Color(value);
+        td.innerHTML = `<div style="width: 14px; height: 14px; display: inline-block; margin-right: 5px; margin-top: 5px; border-radius: 50%; background-color:${value}"></div><div style="display: inline-block; position: relative; top: -2px;">${value}</div>`;
+    }
+    catch (e) {
+        console.error(e);
+    }
+    return td;
+}
 
 export default defineComponent({
     name: 'BTable',
@@ -23,8 +42,11 @@ export default defineComponent({
     data() {
         return {
             tableData: [
-                ['Name', 'Ford', 'Tesla', 'Toyota', 'Honda'],
-                ['Color', '', '', '', ''],
+                ['', 'blueberry', 'banana', 'kiwi', 'watermelon']
+                    // @ts-ignore:
+                    .map(name => name ? this.$i18n.t(name) : ''),
+                // @ts-ignore:
+                [this.$i18n.t('color'), '', '', '', ''],
                 ['2017', '13', '11', '12', '14'],
                 ['2018', '20', '44', '34', '39'],
                 ['2019', '62', '75', '58', '63']
@@ -41,25 +63,26 @@ export default defineComponent({
             colHeaders: true,
             filters: true,
             dropdownMenu: true,
-            // cell: [{
-            //     row: 0,
-            //     col: 0,
-            //     readOnly: true
-            // }, {
-            //     row: 1,
-            //     col: 0,
-            //     readOnly: true
-            // }],
-            //- cells: function (row, col) {
-            //-     if (row === 1) {
-            //-         return {
-            //-             renderer: colorRenderer
-            //-         }
-            //-     }
-            //-     else {
-            //-         return {};
-            //-     }
-            //- }
+            cell: [{
+                row: 0,
+                col: 0,
+                readOnly: true
+            }, {
+                row: 1,
+                col: 0,
+                readOnly: true,
+                data: 'Color'
+            }],
+            cells: function (row, col) {
+                if (row === 1) {
+                    return {
+                        renderer: colorRenderer
+                    };
+                }
+                else {
+                    return {};
+                }
+            }
         });
         this.table.updateSettings({
             afterChange: () => {
@@ -81,15 +104,15 @@ export default defineComponent({
         getChartData(): ChartData {
             let columns = 0;
             const firstRow = this.tableData[0];
-            for (let i = 0; i < firstRow.length; ++i) {
+            for (let i = 1; i < firstRow.length; ++i) {
                 if (!firstRow[i] || !firstRow[i].trim()) {
                     columns = i;
                     break;
                 }
             }
 
-            let rows = 0;
-            for (let i = 0; i < this.tableData.length; ++i) {
+            let rows = headerLength;
+            for (let i = headerLength; i < this.tableData.length; ++i) {
                 if (!this.tableData[i] || !this.tableData[i][0] || !this.tableData[i][0]) {
                     rows = i;
                     break;

@@ -3,15 +3,14 @@
         <div class="grid grid-cols-12 h-full text-sm">
             <el-card class="box-card col-span-3">
                 <h1 slot="header" class="clearfix text-xl">
-                    动态排序柱状图生成器
+                    {{$t('toolName')}}
                 </h1>
                 <div id="el-config" class="align-middle">
                     <el-form ref="form">
                         <div class="grid grid-cols-3 form-row">
-                            <label class="col-span-1">标题</label>
+                            <label class="col-span-1">{{$t('chartTitle')}}</label>
                             <el-input
                                 id="input-title"
-                                value="汽车产量动态排名"
                                 size="medium"
                                 class="col-span-2"
                                 v-model="title"
@@ -86,7 +85,8 @@ export default defineComponent({
     name: 'BBody',
     data() {
         return {
-            title: '汽车销量',
+            // @ts-ignore:
+            title: this.$i18n.t('defaultChartTitle'),
             maxDataCnt: null,
             chartData: null,
             animationDuration: 3000

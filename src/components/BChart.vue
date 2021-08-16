@@ -1,7 +1,7 @@
 <template>
     <div>
         <div slot="header" class="clearfix text-base">
-            预览
+            {{$t('preview')}}
             <a href="javascript:;" @click="run()">
                 <i class="el-icon-refresh"></i>
             </a>
@@ -57,11 +57,15 @@ export default defineComponent({
             this.clearTimeoutHandlers();
             if (chart) {
                 chart.dispose();
+                chart = null;
+            }
+
+            if (!this.chartData.length) {
+                return;
             }
 
             chart = echarts.init(this.$refs.chart as HTMLElement);
-            const animationDuration =/* this.animationDuration ||*/ 5000;
-
+            const animationDuration = this.animationDuration;
             const option = {
                 xAxis: {
                     type: 'value',
