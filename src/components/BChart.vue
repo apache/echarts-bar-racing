@@ -9,7 +9,12 @@
         <div
             id="bar-race-preview"
             ref="chart"
-            class="absolute bottom-4 top-14 left-5 right-5 border">
+            class="absolute bottom-4 top-14 left-5 right-5 border"
+            :class="isHidden ? 'hidden' : ''"
+        >
+        </div>
+        <div id="chart-hint" v-if="isHidden">
+            视频生成中无法预览
         </div>
     </div>
 </template>
@@ -17,6 +22,7 @@
 <script lang="ts">
 import {defineComponent} from 'vue';
 import * as echarts from 'echarts';
+import canvasRecord from 'canvas-record';
 
 const colorAll = [
     '#5470c6',
@@ -42,7 +48,8 @@ export default defineComponent({
     },
     data() {
         return {
-            timeoutHandlers: []
+            timeoutHandlers: [],
+            isHidden: false
         };
     },
     watch: {
@@ -54,6 +61,48 @@ export default defineComponent({
     },
     methods: {
         run() {
+            this.doResetChart();
+            this.doRun();
+        },
+
+        clearTimeoutHandlers() {
+            for (let i = 0; i < this.timeoutHandlers.length; ++i) {
+                clearTimeout(this.timeoutHandlers[i]);
+            }
+            this.timeoutHandlers = [];
+        },
+
+        removeTimeoutHandlers(handler: number) {
+            for (let i = 0; i < this.timeoutHandlers.length; ++i) {
+                if (this.timeoutHandlers[i] === handler) {
+                    this.timeoutHandlers.splice(i, 1);
+                }
+            }
+        },
+
+        captureVideo(width?: number, height?: number): Promise<boolean> {
+            return new Promise(resolve => {
+                try {
+                    this.isHidden = true;
+                    this.doResetChart(width, height);
+                    const canvas = chart.getDom().children[0].children[0] as HTMLCanvasElement;
+                    const recorder = canvasRecord(canvas);
+
+                    this.doRun(5000, () => {
+                        recorder.stop();
+                        this.isHidden = false;
+                        resolve(true);
+                    });
+                }
+                catch (e) {
+                    console.error(e);
+                    this.isHidden = false;
+                    resolve(false);
+                }
+            });
+        },
+
+        doResetChart(width?: number, height?: number) {
             this.clearTimeoutHandlers();
             if (chart) {
                 chart.dispose();
@@ -64,9 +113,14 @@ export default defineComponent({
                 return;
             }
 
-            chart = echarts.init(this.$refs.chart as HTMLElement);
+            chart = echarts.init(this.$refs.chart as HTMLElement, null, {
+                width: width || undefined,
+                height: height || undefined
+            });
+
             const animationDuration = this.animationDuration;
             const option = {
+                backgroundColor: '#fff',
                 xAxis: {
                     type: 'value',
                     max: 'dataMax'
@@ -119,50 +173,52 @@ export default defineComponent({
                 animationEasingUpdate: 'linear'
             };
             chart.setOption(option as echarts.EChartsOption, true);
+        },
 
+        doRun(timePadding?: number, onCompleted?: Function) {
             const dataCnt = this.chartData.length - headerLength - 1;
             const that = this;
             for (let i = 0; i < dataCnt; ++i) {
                 (function (i: number) {
                     let timeout: number;
                     const timeoutCb = function () {
+                        const row = that.chartData[headerLength + i + 1] as string[];
                         chart.setOption({
                             series: [{
                                 type: 'bar',
                                 id: 'bar',
-                                data: (that.chartData[headerLength + i + 1] as string[]).slice(1).map(str => parseInt(str, 10)),
+                                data: row.slice(1).map(str => parseInt(str, 10)),
                                 label: {
                                     valueAnimation: true
                                 }
+                            }],
+                            title: [{
+                                text: row[0]
                             }]
                         });
                         that.removeTimeoutHandlers(timeout);
+                        if (i === dataCnt - 1 && typeof onCompleted === 'function') {
+                            setTimeout(onCompleted, timePadding);
+                        }
                     };
-                    timeout = window.setTimeout(timeoutCb, i * animationDuration);
+                    timeout = window.setTimeout(timeoutCb, i * that.animationDuration);
                     that.timeoutHandlers.push(timeout);
                 })(i);
-            }
-        },
-
-        clearTimeoutHandlers() {
-            for (let i = 0; i < this.timeoutHandlers.length; ++i) {
-                clearTimeout(this.timeoutHandlers[i]);
-            }
-            this.timeoutHandlers = [];
-        },
-
-        removeTimeoutHandlers(handler: number) {
-            for (let i = 0; i < this.timeoutHandlers.length; ++i) {
-                if (this.timeoutHandlers[i] === handler) {
-                    this.timeoutHandlers.splice(i, 1);
-                }
             }
         }
     }
 })
 </script>
 
-<style scoped>
-@layer utilities {
+<style>
+.hidden {
+    visibility: hidden;
+}
+
+#chart-hint {
+    position: absolute;
+    top: 55px;
+    left: 20px;
+    color: #999;
 }
 </style>

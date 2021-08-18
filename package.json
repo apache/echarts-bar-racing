@@ -30,6 +30,7 @@
         "yargs": "^6.6.0"
     },
     "dependencies": {
+        "canvas-record": "^3.0.0",
         "color": "^3.1.3",
         "echarts": "^5.1.1",
         "element-plus": "^1.0.2-beta.44",

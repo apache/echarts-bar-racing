@@ -44,9 +44,39 @@
                             >
                             </el-input>
                         </div>
+                        <div class="grid grid-cols-3 form-row">
+                            <label class="col-span-1">视频宽度</label>
+                            <el-input
+                                type="number"
+                                size="medium"
+                                class="col-span-2"
+                                v-model="width"
+                            >
+                            </el-input>
+                        </div>
+                        <div class="grid grid-cols-3 form-row">
+                            <label class="col-span-1">视频高度</label>
+                            <el-input
+                                type="number"
+                                size="medium"
+                                class="col-span-2"
+                                v-model="height"
+                            >
+                            </el-input>
+                        </div>
                         <el-form-item>
-                            <el-button @click="download">下载</el-button>
+                            <el-button @click="download" type="primary">下载代码</el-button>
+                            <el-button @click="downloadVideo">生成视频</el-button>
                         </el-form-item>
+
+                        <div class="grid grid-cols-3 form-row">
+                            <label class="col-span-1">视频生成中</label>
+                            <el-progress class="col-span-2"
+                                :text-inside="true"
+                                :stroke-width="20"
+                                :percentage="videoPercentage">
+                            </el-progress>
+                        </div>
                     </el-form>
                 </div>
             </el-card>
@@ -89,7 +119,10 @@ export default defineComponent({
             title: this.$i18n.t('defaultChartTitle'),
             maxDataCnt: null,
             chartData: null,
-            animationDuration: 3000
+            animationDuration: 3000,
+            width: 1280,
+            height: 720,
+            videoPercentage: 40
         }
     },
     components: {
@@ -127,6 +160,18 @@ export default defineComponent({
             document.body.appendChild(element);
             element.click();
             document.body.removeChild(element);
+        },
+
+        async downloadVideo() {
+            const isSuccess = await (this.$refs.bchart as any).captureVideo(this.width, this.height);
+            if (!isSuccess) {
+                // this.$notify.error({
+                //     title: '导出失败！',
+                //     message: '建议使用最新版 Chrome 或 Firefox',
+                //     duration: 0,
+                //     position: 'bottom-left'
+                // });
+            }
         }
     }
 })

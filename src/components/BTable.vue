@@ -2,9 +2,6 @@
     <div>
         <div slot='header' class='clearfix text-base'>
             {{$t('data')}}
-            <a href="javascript:;" @click="run()">
-                <i class="el-icon-refresh"></i>
-            </a>
         </div>
         <div ref='table' id='table-panel' class='overflow-auto absolute bottom-4 top-14 left-5 right-5 border'>
         </div>
@@ -49,7 +46,9 @@ export default defineComponent({
                 [this.$i18n.t('color'), '', '', '', ''],
                 ['2017', '13', '11', '12', '14'],
                 ['2018', '20', '44', '34', '39'],
-                ['2019', '62', '75', '58', '63']
+                ['2019', '62', '75', '58', '63'],
+                ['2020', '98', '81', '78', '93'],
+                ['2021', '139', '98', '88', '143']
             ],
             table: null,
             debouncedTableChange: null
