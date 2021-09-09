@@ -37,6 +37,7 @@ const colorAll = [
 ];
 const headerLength = 2;
 let chart: echarts.ECharts;
+let time: number;
 
 export default defineComponent({
     name: 'BChart',
@@ -62,6 +63,7 @@ export default defineComponent({
     methods: {
         run() {
             this.doResetChart();
+            time = Date.now();
             this.doRun();
         },
 
@@ -87,11 +89,25 @@ export default defineComponent({
                     this.doResetChart(width, height);
                     const canvas = chart.getDom().children[0].children[0] as HTMLCanvasElement;
                     const recorder = canvasRecord(canvas);
+                    time = Date.now();
 
-                    this.doRun(5000, () => {
-                        recorder.stop();
+                    recorder.start();
+
+                    this.doRun(() => {
+                        let hasError = false;
+                        try {
+                            recorder.stop();
+                        }
+                        catch (e) {
+                            console.error(e);
+                            hasError = true;
+                        }
+
                         this.isHidden = false;
-                        resolve(true);
+                        setTimeout(() => {
+                            this.run();
+                        });
+                        resolve(hasError);
                     });
                 }
                 catch (e) {
@@ -175,7 +191,7 @@ export default defineComponent({
             chart.setOption(option as echarts.EChartsOption, true);
         },
 
-        doRun(timePadding?: number, onCompleted?: Function) {
+        doRun(onCompleted?: Function) {
             const dataCnt = this.chartData.length - headerLength - 1;
             const that = this;
             for (let i = 0; i < dataCnt; ++i) {
@@ -198,7 +214,7 @@ export default defineComponent({
                         });
                         that.removeTimeoutHandlers(timeout);
                         if (i === dataCnt - 1 && typeof onCompleted === 'function') {
-                            setTimeout(onCompleted, timePadding);
+                            setTimeout(onCompleted, that.animationDuration);
                         }
                     };
                     timeout = window.setTimeout(timeoutCb, i * that.animationDuration);

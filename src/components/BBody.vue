@@ -1,5 +1,8 @@
 <template>
-    <div class="w-full h-full">
+    <div class="w-full h-full"
+        v-loading="isExportingVideo"
+        element-loading-text="视频生成中"
+    >
         <div class="grid grid-cols-12 h-full text-sm">
             <el-card class="box-card col-span-3">
                 <h1 slot="header" class="clearfix text-xl">
@@ -68,15 +71,6 @@
                             <el-button @click="download" type="primary">下载代码</el-button>
                             <el-button @click="downloadVideo">生成视频</el-button>
                         </el-form-item>
-
-                        <div class="grid grid-cols-3 form-row">
-                            <label class="col-span-1">视频生成中</label>
-                            <el-progress class="col-span-2"
-                                :text-inside="true"
-                                :stroke-width="20"
-                                :percentage="videoPercentage">
-                            </el-progress>
-                        </div>
                     </el-form>
                 </div>
             </el-card>
@@ -122,7 +116,8 @@ export default defineComponent({
             animationDuration: 3000,
             width: 1280,
             height: 720,
-            videoPercentage: 40
+            videoPercentage: 40,
+            isExportingVideo: false
         }
     },
     components: {
@@ -163,7 +158,9 @@ export default defineComponent({
         },
 
         async downloadVideo() {
+            // this.isExportingVideo = true;
             const isSuccess = await (this.$refs.bchart as any).captureVideo(this.width, this.height);
+            // this.isExportingVideo = false;
             if (!isSuccess) {
                 // this.$notify.error({
                 //     title: '导出失败！',
