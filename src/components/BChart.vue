@@ -1,20 +1,20 @@
 <template>
     <div>
-        <div slot="header" class="clearfix text-base">
+        <div slot="header" class="clearfix text-base" v-if="!isExportingVideo">
             {{$t('preview')}}
             <a href="javascript:;" @click="run()">
                 <i class="el-icon-refresh"></i>
             </a>
         </div>
+        <div slot="header" class="clearfix text-base" v-if="isExportingVideo">
+            <i class="el-icon-loading"></i>
+            {{$t('exporting')}}
+        </div>
         <div
             id="bar-race-preview"
             ref="chart"
             class="absolute bottom-4 top-14 left-5 right-5 border"
-            :class="isHidden ? 'hidden' : ''"
         >
-        </div>
-        <div id="chart-hint" v-if="isHidden">
-            视频生成中无法预览
         </div>
     </div>
 </template>
@@ -50,7 +50,7 @@ export default defineComponent({
     data() {
         return {
             timeoutHandlers: [],
-            isHidden: false
+            isExportingVideo: false
         };
     },
     watch: {
@@ -82,13 +82,28 @@ export default defineComponent({
             }
         },
 
-        captureVideo(width?: number, height?: number): Promise<boolean> {
+        captureVideo(width: number, height: number, fps: number): Promise<boolean> {
             return new Promise(resolve => {
                 try {
-                    this.isHidden = true;
+                    this.isExportingVideo = true;
                     this.doResetChart(width, height);
-                    const canvas = chart.getDom().children[0].children[0] as HTMLCanvasElement;
-                    const recorder = canvasRecord(canvas);
+                    const container = chart.getDom();
+                    const canvas = container.children[0].children[0] as HTMLCanvasElement;
+                    if (container.clientHeight) {
+                        if (container.clientWidth / container.clientHeight > width / height) {
+                            canvas.style.height = container.clientHeight + 'px';
+                            canvas.style.width = container.clientHeight / height * width + 'px';
+                        }
+                        else {
+                            canvas.style.width = container.clientWidth + 'px';
+                            canvas.style.height = container.clientWidth / width * height + 'px';
+                        }
+                    }
+
+                    const recorder = canvasRecord(canvas, {
+                        frameRate: fps || 30,
+                        filename: this.title || this.$t('toolName')
+                    });
                     time = Date.now();
 
                     recorder.start();
@@ -103,16 +118,16 @@ export default defineComponent({
                             hasError = true;
                         }
 
-                        this.isHidden = false;
+                        this.isExportingVideo = false;
                         setTimeout(() => {
                             this.run();
+                            resolve(!hasError);
                         });
-                        resolve(hasError);
                     });
                 }
                 catch (e) {
                     console.error(e);
-                    this.isHidden = false;
+                    this.isExportingVideo = false;
                     resolve(false);
                 }
             });
@@ -167,7 +182,9 @@ export default defineComponent({
                 }],
                 grid: {
                     right: 60,
-                    bottom: 30
+                    bottom: 30,
+                    left: 20,
+                    containLabel: true
                 },
                 title: [{
                     text: (this.chartData as any)[headerLength][0],

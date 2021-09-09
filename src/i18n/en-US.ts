@@ -11,5 +11,6 @@ export default {
     banana: 'Banana',
     kiwi: 'Kiwi',
     watermelon: 'Watermelon',
-    preview: 'Preview'
+    preview: 'Preview',
+    exporting: 'The video is under exporting'
 };

@@ -39,7 +39,7 @@ export default defineComponent({
     data() {
         return {
             tableData: [
-                ['', 'blueberry', 'banana', 'kiwi', 'watermelon']
+                ['', 'blueberry', 'kiwi', 'banana', 'watermelon']
                     // @ts-ignore:
                     .map(name => name ? this.$i18n.t(name) : ''),
                 // @ts-ignore:

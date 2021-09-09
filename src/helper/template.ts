@@ -82,10 +82,12 @@ export default `
                 }],
                 grid: {
                     right: 60,
-                    bottom: 30
+                    bottom: 30,
+                    left: 20,
+                    containLabel: true
                 },
                 title: [{
-                    text: 'aaa',
+                    text: data[headerLength][0],
                     right: 20,
                     bottom: 15,
                     textStyle: {
@@ -118,6 +120,9 @@ export default `
                                 label: {
                                     valueAnimation: true
                                 }
+                            }],
+                            title: [{
+                                text: data[headerLength + i + 1][0]
                             }]
                         });
                         removeTimeoutHandlers(timeout);

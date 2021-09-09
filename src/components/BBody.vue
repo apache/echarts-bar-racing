@@ -1,80 +1,126 @@
 <template>
-    <div class="w-full h-full"
-        v-loading="isExportingVideo"
-        element-loading-text="视频生成中"
-    >
+    <div class="w-full h-full">
         <div class="grid grid-cols-12 h-full text-sm">
-            <el-card class="box-card col-span-3">
+            <el-card class="box-card col-span-3 scroll-card">
                 <h1 slot="header" class="clearfix text-xl">
                     {{$t('toolName')}}
                 </h1>
                 <div id="el-config" class="align-middle">
-                    <el-form ref="form">
-                        <div class="grid grid-cols-3 form-row">
-                            <label class="col-span-1">{{$t('chartTitle')}}</label>
-                            <el-input
-                                id="input-title"
-                                size="medium"
-                                class="col-span-2"
-                                v-model="title"
-                                @change="runChart"
-                            >
-                            </el-input>
-                        </div>
-                        <div class="grid grid-cols-3 form-row">
-                            <label class="col-span-1">显示排名上限</label>
-                            <el-input
-                                id="input-max"
-                                type="number"
-                                value=""
-                                size="medium"
-                                class="col-span-2"
-                                v-model="maxDataCnt"
-                                @change="runChart"
-                            >
-                            </el-input>
-                        </div>
-                        <div class="grid grid-cols-3 form-row">
-                            <label class="col-span-1">每行动画时长（毫秒）</label>
-                            <el-input
-                                id="input-animation-duration"
-                                type="number"
-                                value="5000"
-                                size="medium"
-                                class="col-span-2"
-                                v-model="animationDuration"
-                                @change="runChart"
-                            >
-                            </el-input>
-                        </div>
-                        <div class="grid grid-cols-3 form-row">
-                            <label class="col-span-1">视频宽度</label>
-                            <el-input
-                                type="number"
-                                size="medium"
-                                class="col-span-2"
-                                v-model="width"
-                            >
-                            </el-input>
-                        </div>
-                        <div class="grid grid-cols-3 form-row">
-                            <label class="col-span-1">视频高度</label>
-                            <el-input
-                                type="number"
-                                size="medium"
-                                class="col-span-2"
-                                v-model="height"
-                            >
-                            </el-input>
-                        </div>
-                        <el-form-item>
-                            <el-button @click="download" type="primary">下载代码</el-button>
-                            <el-button @click="downloadVideo">生成视频</el-button>
-                        </el-form-item>
+                    <el-form ref="form" :disabled="isExportingVideo">
+                        <h2>图表设置</h2>
+                        <el-row>
+                            <el-col :span="12">
+                                {{$t('chartTitle')}}
+                            </el-col>
+                            <el-col :span="12">
+                                <el-input
+                                    id="input-title"
+                                    size="medium"
+                                    class="col-span-1"
+                                    v-model="title"
+                                    @change="runChart"
+                                >
+                                </el-input>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
+                                显示排名上限
+                            </el-col>
+                            <el-col :span="12">
+                                <el-input
+                                    id="input-max"
+                                    type="number"
+                                    value=""
+                                    size="medium"
+                                    class="col-span-2"
+                                    placeholder="为空则显示所有"
+                                    v-model="maxDataCnt"
+                                    @change="runChart"
+                                >
+                                </el-input>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
+                                每行动画时长<span class="hint">（毫秒）</span>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-input
+                                    id="input-animation-duration"
+                                    type="number"
+                                    value="5000"
+                                    size="medium"
+                                    class="col-span-2"
+                                    v-model="animationDuration"
+                                    @change="runChart"
+                                >
+                                </el-input>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-button @click="download" type="primary">
+                                <i class="el-icon-download"></i>
+                                下载代码
+                            </el-button>
+                        </el-row>
+
+                        <el-divider></el-divider>
+
+                        <h2>视频设置</h2>
+                        <el-row>
+                            <el-col :span="12">
+                                视频宽度
+                            </el-col>
+                            <el-col :span="12">
+                                <el-input
+                                    type="number"
+                                    size="medium"
+                                    class="col-span-2"
+                                    v-model="width"
+                                >
+                                </el-input>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
+                                视频高度
+                            </el-col>
+                            <el-col :span="12">
+                                <el-input
+                                    type="number"
+                                    size="medium"
+                                    class="col-span-2"
+                                    v-model="height"
+                                >
+                                </el-input>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
+                                视频帧率<span class="hint">（FPS）</span>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-input
+                                    type="number"
+                                    size="medium"
+                                    class="col-span-2"
+                                    v-model="fps"
+                                >
+                                </el-input>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-button @click="downloadVideo">
+                                <i class="el-icon-video-camera"></i>
+                                生成视频
+                            </el-button>
+                        </el-row>
                     </el-form>
                 </div>
             </el-card>
             <el-card
+                v-if="!isExportingVideo"
                 class="box-card col-span-4 relative"
                 body-style="height: 100%"
             >
@@ -84,7 +130,8 @@
                 />
             </el-card>
             <el-card
-                class="box-card col-span-5 relative"
+                class="box-card relative"
+                :class="isExportingVideo ? 'col-span-9' : 'col-span-5'"
                 body-style="height: 100%"
             >
                 <BChart
@@ -116,6 +163,7 @@ export default defineComponent({
             animationDuration: 3000,
             width: 1280,
             height: 720,
+            fps: 30,
             videoPercentage: 40,
             isExportingVideo: false
         }
@@ -158,16 +206,34 @@ export default defineComponent({
         },
 
         async downloadVideo() {
-            // this.isExportingVideo = true;
-            const isSuccess = await (this.$refs.bchart as any).captureVideo(this.width, this.height);
-            // this.isExportingVideo = false;
-            if (!isSuccess) {
-                // this.$notify.error({
-                //     title: '导出失败！',
-                //     message: '建议使用最新版 Chrome 或 Firefox',
-                //     duration: 0,
-                //     position: 'bottom-left'
-                // });
+            if (!this.width || !this.height) {
+                this.$notify.error({
+                    title: '视频高度宽度错误！',
+                    message: '高度宽度不能为 0',
+                    duration: 0,
+                    position: 'bottom-left'
+                });
+                return;
+            }
+
+            this.isExportingVideo = true;
+            const isSuccess = await (this.$refs.bchart as any).captureVideo(this.width, this.height, this.fps);
+            this.isExportingVideo = false;
+            if (isSuccess) {
+                this.$notify({
+                    title: '导出成功！',
+                    type: 'success',
+                    duration: 3000,
+                    position: 'bottom-left'
+                });
+            }
+            else {
+                this.$notify.error({
+                    title: '导出失败！',
+                    message: '建议使用最新版 Chrome 或 Firefox',
+                    duration: 0,
+                    position: 'bottom-left'
+                });
             }
         }
     }
@@ -175,8 +241,37 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.scroll-card {
+    overflow-y: auto;
+}
+
+.el-col-12 {
+    place-self: center;
+}
+
+h1 {
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+h2 {
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.hint {
+    color: #999;
+    font-size: 12px;
+}
+
+.el-button i {
+    display: inline-block;
+    margin-right: 2px;
+}
+
 @layer utilities {
-    .form-row {
+    .el-row {
         @apply my-3;
 
         label {

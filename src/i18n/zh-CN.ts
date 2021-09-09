@@ -15,7 +15,8 @@ const langCn: DEFAULT_LANG_TYPE = {
     banana: '香蕉',
     kiwi: '猕猴桃',
     watermelon: '西瓜',
-    preview: '预览'
+    preview: '预览',
+    exporting: '视频正在导出中'
 };
 
 export default langCn;
