@@ -7,6 +7,13 @@
                 </h1>
                 <div id="el-config" class="align-middle">
                     <el-form ref="form" :disabled="isExportingVideo">
+                        <h2>示例数据</h2>
+                        <el-button @click="download" type="primary">
+                            清空
+                        </el-button>
+
+                        <el-divider></el-divider>
+
                         <h2>图表设置</h2>
                         <el-row>
                             <el-col :span="12">
@@ -35,7 +42,7 @@
                                     size="medium"
                                     class="col-span-2"
                                     placeholder="为空则显示所有"
-                                    v-model="maxDataCnt"
+                                    v-model.number="maxDataCnt"
                                     @change="runChart"
                                 >
                                 </el-input>
@@ -126,6 +133,7 @@
             >
                 <BTable
                     ref="btable"
+                    :demoData="demoData"
                     @after-change="tableAfterChange"
                 />
             </el-card>
@@ -151,11 +159,14 @@ import {defineComponent} from 'vue';
 import BTable, {ChartData} from './BTable.vue';
 import BChart from './BChart.vue';
 import template from '../helper/template';
+import fruit from '../data/fruit';
+import expectancy from '../data/expectancy';
 
 export default defineComponent({
     name: 'BBody',
     data() {
         return {
+            demoData: expectancy,
             // @ts-ignore:
             title: this.$i18n.t('defaultChartTitle'),
             maxDataCnt: null,

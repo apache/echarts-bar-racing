@@ -35,21 +35,19 @@ function colorRenderer(instance, td, row, col, prop, value) {
 export default defineComponent({
     name: 'BTable',
     props: {
+        demoData: Array
     },
     data() {
-        return {
-            tableData: [
-                ['', 'blueberry', 'kiwi', 'banana', 'watermelon']
-                    // @ts-ignore:
-                    .map(name => name ? this.$i18n.t(name) : ''),
+        const data = this.demoData && this.demoData.length
+            ? [
                 // @ts-ignore:
-                [this.$i18n.t('color'), '', '', '', ''],
-                ['2017', '13', '11', '12', '14'],
-                ['2018', '20', '44', '34', '39'],
-                ['2019', '62', '75', '58', '63'],
-                ['2020', '98', '81', '78', '93'],
-                ['2021', '139', '98', '88', '143']
-            ],
+                this.demoData[0].map(name => name ? this.$i18n.t(name) : ''),
+                // @ts-ignore:
+                [this.$i18n.t('color'), '', '', '', '']
+            ].concat(this.demoData.slice(1))
+            : [];
+        return {
+            tableData: data,
             table: null,
             debouncedTableChange: null
         }
