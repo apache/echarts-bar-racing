@@ -45,7 +45,8 @@ export default defineComponent({
         title: String,
         chartData: Array,
         maxDataCnt: Number,
-        animationDuration: Number
+        animationDuration: Number,
+        sortDuration: Number
     },
     data() {
         return {
@@ -160,8 +161,8 @@ export default defineComponent({
                     type: 'category',
                     data: (this.chartData[0] as string[]).slice(1),
                     inverse: true,
-                    animationDuration: 300,
-                    animationDurationUpdate: 300,
+                    animationDuration: this.sortDuration || 300,
+                    animationDurationUpdate: this.sortDuration || 300,
                     max: this.maxDataCnt ? this.maxDataCnt - 1 : null
                 },
                 series: [{

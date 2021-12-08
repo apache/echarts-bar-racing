@@ -8,7 +8,7 @@
                 <div id="el-config" class="align-middle">
                     <el-form ref="form" :disabled="isExportingVideo">
                         <h2>示例数据</h2>
-                        <el-button @click="download" type="primary">
+                        <el-button @click="setData('fruit')" type="primary">
                             清空
                         </el-button>
 
@@ -60,6 +60,23 @@
                                     size="medium"
                                     class="col-span-2"
                                     v-model="animationDuration"
+                                    @change="runChart"
+                                >
+                                </el-input>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="12">
+                                排序更新时长<span class="hint">（毫秒）</span>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-input
+                                    id="input-sort-duration"
+                                    type="number"
+                                    value="500"
+                                    size="medium"
+                                    class="col-span-2"
+                                    v-model="sortDuration"
                                     @change="runChart"
                                 >
                                 </el-input>
@@ -148,6 +165,7 @@
                     :chartData="chartData"
                     :maxDataCnt="maxDataCnt"
                     :animationDuration="animationDuration"
+                    :sortDuration="sortDuration"
                 />
             </el-card>
         </div>
@@ -169,9 +187,10 @@ export default defineComponent({
             demoData: expectancy,
             // @ts-ignore:
             title: this.$i18n.t('defaultChartTitle'),
-            maxDataCnt: null,
+            maxDataCnt: 10,
             chartData: null,
             animationDuration: 3000,
+            sortDuration: 300,
             width: 1280,
             height: 720,
             fps: 30,
@@ -192,6 +211,23 @@ export default defineComponent({
 
         runChart() {
             (this.$refs.bchart as any).run();
+        },
+
+        setData(name: 'fruit' | 'expectancy') {
+            if (name === 'fruit') {
+                this.demoData = fruit;
+            } else {
+                this.demoData = expectancy;
+            }
+            setTimeout(() => {
+                this.$refs.btable.reset();
+            });
+        },
+
+        emptyData() {
+            this.demoData = [[]];
+            this.runChart();
+            console.log('emptyData');
         },
 
         download() {

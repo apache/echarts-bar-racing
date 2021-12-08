@@ -32,72 +32,83 @@ function colorRenderer(instance, td, row, col, prop, value) {
     return td;
 }
 
+let table: Handsontable;
+let debouncedTableChange: _.DebouncedFunc<() => void>;
+
 export default defineComponent({
     name: 'BTable',
     props: {
         demoData: Array
     },
     data() {
-        const data = this.demoData && this.demoData.length
-            ? [
-                // @ts-ignore:
-                this.demoData[0].map(name => name ? this.$i18n.t(name) : ''),
-                // @ts-ignore:
-                [this.$i18n.t('color'), '', '', '', '']
-            ].concat(this.demoData.slice(1))
-            : [];
         return {
-            tableData: data,
-            table: null,
+            tableData: [[]],
             debouncedTableChange: null
         }
     },
     mounted() {
-        this.insertEmptyCells();
-        this.table = new Handsontable(this.$refs.table as Element, {
-            data: this.tableData,
-            rowHeaders: true,
-            colHeaders: true,
-            filters: true,
-            dropdownMenu: true,
-            cell: [{
-                row: 0,
-                col: 0,
-                readOnly: true
-            }, {
-                row: 1,
-                col: 0,
-                readOnly: true,
-                data: 'Color'
-            }],
-            cells: function (row, col) {
-                if (row === 1) {
-                    return {
-                        renderer: colorRenderer
-                    };
-                }
-                else {
-                    return {};
-                }
-            }
-        });
-        this.table.updateSettings({
-            afterChange: () => {
-                console.log('after')
-                this.debouncedTableChange();
-            }
-        });
+        this.reset();
 
-        this.debouncedTableChange = _.debounce(() => {
+        debouncedTableChange = _.debounce(() => {
             this.$emit('afterChange', this.getChartData());
         }, 500);
 
         this.$emit('afterChange', this.getChartData());
     },
     unmounted() {
-        this.debouncedTableChange.cancel();
+        debouncedTableChange?.cancel();
     },
     methods: {
+        setRawData() {
+            this.tableData = this.demoData && this.demoData.length
+                ? [
+                    // @ts-ignore:
+                    this.demoData[0].map(name => name ? this.$i18n.t(name) : ''),
+                    // @ts-ignore:
+                    [this.$i18n.t('color'), '', '', '', '']
+                ].concat(this.demoData.slice(1))
+                : [];
+        },
+
+        reset() {
+            this.setRawData();
+            this.insertEmptyCells();
+
+            table && (table.destroy());
+            table = new Handsontable(this.$refs.table as Element, {
+                data: this.tableData,
+                rowHeaders: true,
+                colHeaders: true,
+                filters: true,
+                dropdownMenu: true,
+                cell: [{
+                    row: 0,
+                    col: 0,
+                    readOnly: true
+                }, {
+                    row: 1,
+                    col: 0,
+                    readOnly: true,
+                    data: 'Color'
+                }],
+                cells: function (row, col) {
+                    if (row === 1) {
+                        return {
+                            renderer: colorRenderer
+                        };
+                    }
+                    else {
+                        return {};
+                    }
+                }
+            });
+            table.updateSettings({
+                afterChange: () => {
+                    debouncedTableChange();
+                }
+            });
+        },
+
         getChartData(): ChartData {
             let columns = 0;
             const firstRow = this.tableData[0];

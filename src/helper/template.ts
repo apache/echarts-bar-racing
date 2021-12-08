@@ -35,6 +35,7 @@ export default `
         var headerLength = 2;
 
         var animationDuration = {{animationDuration}};
+        var sortDuration = {{sortDuration}};
         var maxDataCnt = {{maxDataCnt}};
         var title = {{title}};
         var data = {{data}};
@@ -60,8 +61,8 @@ export default `
                     type: 'category',
                     data: data[0].slice(1),
                     inverse: true,
-                    animationDuration: 300,
-                    animationDurationUpdate: 300,
+                    animationDuration: sortDuration,
+                    animationDurationUpdate: sortDuration,
                     max: maxDataCnt ? maxDataCnt - 1 : null
                 },
                 series: [{
