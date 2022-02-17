@@ -3,9 +3,12 @@ import langEn from './en-US';
 type DEFAULT_LANG_TYPE = typeof langEn;
 
 const langCn: DEFAULT_LANG_TYPE = {
+    lang: 'zh-CN',
     toolName: '动态排序柱状图生成器',
     chartTitle: '图表标题',
-    defaultChartTitle: '水果销量',
+    titleNone: '空数据',
+    titleSimple: '简单的例子',
+    titleComplicated: '复杂的例子',
     maxDataCount: '排名上限',
     animationDuration: '动画时长（毫秒）',
     download: '下载',

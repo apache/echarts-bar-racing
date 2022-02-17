@@ -9,10 +9,13 @@
 </template>
 
 <script lang='ts'>
-import Handsontable from 'handsontable';
 import {defineComponent} from 'vue';
 import * as _ from 'lodash';
 import * as Color from 'color';
+
+import handsomeZh from '../i18n/handsometable-zh-CN';
+import Handsontable from 'handsontable';
+Handsontable.languages.registerLanguageDictionary(handsomeZh);
 
 const headerLength = 2;
 export type ChartData = string[][];
@@ -65,8 +68,8 @@ export default defineComponent({
                     // @ts-ignore:
                     this.demoData[0].map(name => name ? this.$i18n.t(name) : ''),
                     // @ts-ignore:
-                    [this.$i18n.t('color'), '', '', '', '']
-                ].concat(this.demoData.slice(1))
+                    [this.$i18n.t('color')].concat(this.demoData.length > 2 ? this.demoData[1].slice(1) : [])
+                ].concat(this.demoData.slice(2))
                 : [];
         },
 
@@ -81,6 +84,8 @@ export default defineComponent({
                 colHeaders: true,
                 filters: true,
                 dropdownMenu: true,
+                contextMenu: true,
+                language: this.$i18n.t('lang'),
                 cell: [{
                     row: 0,
                     col: 0,
@@ -106,7 +111,9 @@ export default defineComponent({
                 afterChange: () => {
                     debouncedTableChange();
                 }
-            });
+            }, true);
+
+            this.$emit('afterChange', this.getChartData());
         },
 
         getChartData(): ChartData {

@@ -1,7 +1,10 @@
 export default {
+    lang: 'en-US',
     toolName: 'Bar Racing Generator',
     chartTitle: 'Chart title',
-    defaultChartTitle: 'Fruit sales',
+    titleNone: 'No Data',
+    titleSimple: 'A Simple Example',
+    titleComplicated: 'A Complicated Example',
     maxDataCount: 'Max data count',
     animationDuration: 'Animation duration (ms)',
     download: 'Download',

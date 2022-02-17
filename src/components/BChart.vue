@@ -24,20 +24,8 @@ import {defineComponent} from 'vue';
 import * as echarts from 'echarts';
 import canvasRecord from 'canvas-record';
 
-const colorAll = [
-    '#5470c6',
-    '#91cc75',
-    '#fac858',
-    '#ee6666',
-    '#73c0de',
-    '#3ba272',
-    '#fc8452',
-    '#9a60b4',
-    '#ea7ccc'
-];
 const headerLength = 2;
 let chart: echarts.ECharts;
-let time: number;
 
 export default defineComponent({
     name: 'BChart',
@@ -64,7 +52,6 @@ export default defineComponent({
     methods: {
         run() {
             this.doResetChart();
-            time = Date.now();
             this.doRun();
         },
 
@@ -141,72 +128,72 @@ export default defineComponent({
                 chart = null;
             }
 
-            if (!this.chartData.length) {
-                return;
-            }
-
             chart = echarts.init(this.$refs.chart as HTMLElement, null, {
                 width: width || undefined,
                 height: height || undefined
             });
 
+            if (this.chartData.length < headerLength) {
+                return;
+            }
+
             const animationDuration = this.animationDuration;
-            const option = {
-                backgroundColor: '#fff',
-                xAxis: {
-                    type: 'value',
-                    max: 'dataMax'
-                },
-                yAxis: {
-                    type: 'category',
-                    data: (this.chartData[0] as string[]).slice(1),
-                    inverse: true,
-                    animationDuration: this.sortDuration || 300,
-                    animationDurationUpdate: this.sortDuration || 300,
-                    max: this.maxDataCnt ? this.maxDataCnt - 1 : null
-                },
-                series: [{
-                    id: 'bar',
-                    type: 'bar',
-                    data: (this.chartData[headerLength] as string[]).slice(1).map(str => parseInt(str, 10)),
-                    seriesLayoutBy: 'row',
-                    realtimeSort: true,
-                    label: {
-                        show: true,
-                        position: 'right'
+            try {
+                const option = {
+                    backgroundColor: '#fff',
+                    xAxis: {
+                        type: 'value',
+                        max: 'dataMax'
                     },
-                    itemStyle: {
-                        color: (param: any) => {
-                            return (this.chartData[1] as string[])[param.dataIndex + 1] || colorAll[param.dataIndex % colorAll.length];
+                    yAxis: {
+                        type: 'category',
+                        data: (this.chartData[0] as string[]).slice(1),
+                        inverse: true,
+                        animationDuration: this.sortDuration || 300,
+                        animationDurationUpdate: this.sortDuration || 300,
+                        max: this.maxDataCnt ? this.maxDataCnt - 1 : null
+                    },
+                    color: this.chartData[1].length > 1 ? this.chartData[1].slice(1) : null,
+                    series: [{
+                        id: 'bar',
+                        type: 'bar',
+                        data: (this.chartData[headerLength] as string[]).slice(1).map(str => parseInt(str, 10)),
+                        seriesLayoutBy: 'row',
+                        realtimeSort: true,
+                        label: {
+                            show: true,
+                            position: 'right'
+                        },
+                        colorBy: 'item'
+                    }],
+                    grid: {
+                        right: 60,
+                        bottom: 30,
+                        left: 20,
+                        containLabel: true
+                    },
+                    title: [{
+                        text: (this.chartData as any)[headerLength][0],
+                        right: 20,
+                        bottom: 15,
+                        textStyle: {
+                            color: '#ccc',
+                            opacity: 0.3,
+                            fontSize: 70
                         }
-                    }
-                }],
-                grid: {
-                    right: 60,
-                    bottom: 30,
-                    left: 20,
-                    containLabel: true
-                },
-                title: [{
-                    text: (this.chartData as any)[headerLength][0],
-                    right: 20,
-                    bottom: 15,
-                    textStyle: {
-                        color: '#ccc',
-                        opacity: 0.3,
-                        fontSize: 70
-                    }
-                }, {
-                    text: this.title,
-                    left: 10,
-                    top: 10
-                }],
-                animationDuration: 0,
-                animationDurationUpdate: animationDuration,
-                animationEasing: 'linear',
-                animationEasingUpdate: 'linear'
-            };
-            chart.setOption(option as echarts.EChartsOption, true);
+                    }, {
+                        text: this.title,
+                        left: 10,
+                        top: 10
+                    }],
+                    animationDuration: 0,
+                    animationDurationUpdate: animationDuration,
+                    animationEasing: 'linear',
+                    animationEasingUpdate: 'linear'
+                };
+                chart.setOption(option as echarts.EChartsOption, true);
+            }
+            catch (e) {}
         },
 
         doRun(onCompleted?: Function) {

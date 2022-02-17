@@ -8,9 +8,25 @@
                 <div id="el-config" class="align-middle">
                     <el-form ref="form" :disabled="isExportingVideo">
                         <h2>示例数据</h2>
-                        <el-button @click="setData('fruit')" type="primary">
-                            清空
-                        </el-button>
+                        <el-select v-model="selectedDemo"
+                            @change="onTitleChanged()"
+                        >
+                            <el-option
+                                value="complicated"
+                                :label="titleComplicated"
+                            >
+                            </el-option>
+                            <el-option
+                                value="simple"
+                                :label="titleSimple"
+                            >
+                            </el-option>
+                            <el-option
+                                value="none"
+                                :label="titleNone"
+                            >
+                            </el-option>
+                        </el-select>
 
                         <el-divider></el-divider>
 
@@ -184,9 +200,13 @@ export default defineComponent({
     name: 'BBody',
     data() {
         return {
+            selectedDemo: 'complicated',
             demoData: expectancy,
             // @ts-ignore:
-            title: this.$i18n.t('defaultChartTitle'),
+            title: this.$i18n.t('titleComplicated'),
+            titleComplicated: this.$i18n.t('titleComplicated'),
+            titleSimple: this.$i18n.t('titleSimple'),
+            titleNone: this.$i18n.t('titleNone'),
             maxDataCnt: 10,
             chartData: null,
             animationDuration: 3000,
@@ -216,18 +236,37 @@ export default defineComponent({
         setData(name: 'fruit' | 'expectancy') {
             if (name === 'fruit') {
                 this.demoData = fruit;
+                this.title = this.titleComplicated;
             } else {
                 this.demoData = expectancy;
+                this.title = this.titleSimple;
             }
             setTimeout(() => {
                 this.$refs.btable.reset();
+                this.$refs.bchart.run();
             });
         },
 
-        emptyData() {
-            this.demoData = [[]];
-            this.runChart();
-            console.log('emptyData');
+        onTitleChanged() {
+            if (this.selectedDemo === 'simple') {
+                this.demoData = fruit;
+                this.title = this.titleComplicated;
+                this.maxDataCnt = null;
+            }
+            else if (this.selectedDemo === 'complicated') {
+                this.demoData = expectancy;
+                this.title = this.titleSimple;
+                this.maxDataCnt = 10;
+            }
+            else {
+                this.demoData = [[], []];
+                this.title = this.titleNone;
+                this.maxDataCnt = null;
+            }
+            setTimeout(() => {
+                this.$refs.btable.reset();
+                this.$refs.chart
+            });
         },
 
         download() {
