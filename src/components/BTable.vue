@@ -13,8 +13,8 @@ import {defineComponent} from 'vue';
 import * as _ from 'lodash';
 import * as Color from 'color';
 
+import * as Handsontable from 'handsontable';
 import handsomeZh from '../i18n/handsometable-zh-CN';
-import Handsontable from 'handsontable';
 Handsontable.languages.registerLanguageDictionary(handsomeZh);
 
 const headerLength = 2;

@@ -7,30 +7,28 @@
                 </h1>
                 <div id="el-config" class="align-middle">
                     <el-form ref="form" :disabled="isExportingVideo">
-                        <h2>示例数据</h2>
-                        <el-select v-model="selectedDemo"
-                            @change="onTitleChanged()"
-                        >
-                            <el-option
-                                value="complicated"
-                                :label="titleComplicated"
+                        <h2>{{$t('chartConfigs')}}</h2>
+                        <el-row>
+                            <el-select v-model="selectedDemo"
+                                @change="onTitleChanged()"
                             >
-                            </el-option>
-                            <el-option
-                                value="simple"
-                                :label="titleSimple"
-                            >
-                            </el-option>
-                            <el-option
-                                value="none"
-                                :label="titleNone"
-                            >
-                            </el-option>
-                        </el-select>
-
-                        <el-divider></el-divider>
-
-                        <h2>图表设置</h2>
+                                <el-option
+                                    value="complicated"
+                                    :label="titleComplicated"
+                                >
+                                </el-option>
+                                <el-option
+                                    value="simple"
+                                    :label="titleSimple"
+                                >
+                                </el-option>
+                                <el-option
+                                    value="none"
+                                    :label="titleNone"
+                                >
+                                </el-option>
+                            </el-select>
+                        </el-row>
                         <el-row>
                             <el-col :span="12">
                                 {{$t('chartTitle')}}
@@ -48,7 +46,7 @@
                         </el-row>
                         <el-row>
                             <el-col :span="12">
-                                显示排名上限
+                                {{$t('maxDataCount')}}
                             </el-col>
                             <el-col :span="12">
                                 <el-input
@@ -57,7 +55,7 @@
                                     value=""
                                     size="medium"
                                     class="col-span-2"
-                                    placeholder="为空则显示所有"
+                                    :placeholder="$t('maxDataPlaceholder')"
                                     v-model.number="maxDataCnt"
                                     @change="runChart"
                                 >
@@ -66,7 +64,7 @@
                         </el-row>
                         <el-row>
                             <el-col :span="12">
-                                每行动画时长<span class="hint">（毫秒）</span>
+                                {{$t('animationDuration')}}
                             </el-col>
                             <el-col :span="12">
                                 <el-input
@@ -83,7 +81,7 @@
                         </el-row>
                         <el-row>
                             <el-col :span="12">
-                                排序更新时长<span class="hint">（毫秒）</span>
+                                {{$t('reorderDuration')}}
                             </el-col>
                             <el-col :span="12">
                                 <el-input
@@ -101,16 +99,16 @@
                         <el-row>
                             <el-button @click="download" type="primary">
                                 <i class="el-icon-download"></i>
-                                下载代码
+                                {{$t('download')}}
                             </el-button>
                         </el-row>
 
                         <el-divider></el-divider>
 
-                        <h2>视频设置</h2>
+                        <h2>{{$t('videoConfig')}}</h2>
                         <el-row>
                             <el-col :span="12">
-                                视频宽度
+                                {{$t('videoWidth')}}
                             </el-col>
                             <el-col :span="12">
                                 <el-input
@@ -124,7 +122,7 @@
                         </el-row>
                         <el-row>
                             <el-col :span="12">
-                                视频高度
+                                {{$t('videoHeight')}}
                             </el-col>
                             <el-col :span="12">
                                 <el-input
@@ -138,7 +136,7 @@
                         </el-row>
                         <el-row>
                             <el-col :span="12">
-                                视频帧率<span class="hint">（FPS）</span>
+                                {{$t('videoFps')}}
                             </el-col>
                             <el-col :span="12">
                                 <el-input
@@ -153,7 +151,7 @@
                         <el-row>
                             <el-button @click="downloadVideo">
                                 <i class="el-icon-video-camera"></i>
-                                生成视频
+                                {{$t('generateVideo')}}
                             </el-button>
                         </el-row>
                     </el-form>
@@ -199,14 +197,14 @@ import expectancy from '../data/expectancy';
 export default defineComponent({
     name: 'BBody',
     data() {
+        const i18n = this.$$i18n as any;
         return {
             selectedDemo: 'complicated',
             demoData: expectancy,
-            // @ts-ignore:
-            title: this.$i18n.t('titleComplicated'),
-            titleComplicated: this.$i18n.t('titleComplicated'),
-            titleSimple: this.$i18n.t('titleSimple'),
-            titleNone: this.$i18n.t('titleNone'),
+            title: i18n.t('titleComplicated'),
+            titleComplicated: i18n.t('titleComplicated'),
+            titleSimple: i18n.t('titleSimple'),
+            titleNone: i18n.t('titleNone'),
             maxDataCnt: 10,
             chartData: null,
             animationDuration: 3000,
@@ -275,7 +273,8 @@ export default defineComponent({
                 animationDuration: this.animationDuration,
                 maxDataCnt: this.maxDataCnt,
                 title: this.title,
-                data: (this.$refs.btable as any).getChartData()
+                data: (this.$refs.btable as any).getChartData(),
+                sortDuration: this.sortDuration
             };
             for (let attr in map) {
                 const value = (map as any)[attr];

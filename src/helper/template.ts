@@ -84,8 +84,7 @@ export default `
                 grid: {
                     right: 60,
                     bottom: 30,
-                    left: 20,
-                    containLabel: true
+                    left: 110
                 },
                 title: [{
                     text: data[headerLength][0],

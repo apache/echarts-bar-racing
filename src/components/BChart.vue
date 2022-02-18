@@ -92,7 +92,6 @@ export default defineComponent({
                         frameRate: fps || 30,
                         filename: this.title || this.$t('toolName')
                     });
-                    time = Date.now();
 
                     recorder.start();
 
@@ -133,7 +132,7 @@ export default defineComponent({
                 height: height || undefined
             });
 
-            if (this.chartData.length < headerLength) {
+            if (!this.chartData || this.chartData.length < headerLength) {
                 return;
             }
 
@@ -169,8 +168,7 @@ export default defineComponent({
                     grid: {
                         right: 60,
                         bottom: 30,
-                        left: 20,
-                        containLabel: true
+                        left: 110
                     },
                     title: [{
                         text: (this.chartData as any)[headerLength][0],
@@ -197,6 +195,9 @@ export default defineComponent({
         },
 
         doRun(onCompleted?: Function) {
+            if (!this.chartData || this.chartData.length < headerLength) {
+                return;
+            }
             const dataCnt = this.chartData.length - headerLength - 1;
             const that = this;
             for (let i = 0; i < dataCnt; ++i) {
