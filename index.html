@@ -5,7 +5,6 @@
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>ECharts WWW SPA Boilerplate</title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.css">
         <style>
             body {
                 padding: 0;
@@ -41,6 +40,7 @@
                 height: 100%;
             }
         </style>
+        <link href="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.full.min.css" rel="stylesheet" media="screen">
     </head>
     <body>
         <div id="header">
@@ -69,6 +69,7 @@
                 document.querySelector('#header .lang').href = 'index.html?locale=' + otherLocale;
             })();
         </script>
+        <script src="https://cdn.jsdelivr.net/npm/handsontable@6.2.2/dist/handsontable.min.js"></script>
         <script type="module" src="./src/main.ts"></script>
     </body>
 </html>

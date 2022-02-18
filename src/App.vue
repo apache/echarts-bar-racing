@@ -29,6 +29,7 @@ import BBody from './components/BBody.vue';
 
 .el-container {
     height: 100%;
+    margin-top: -50px;
 }
 
 .el-main {

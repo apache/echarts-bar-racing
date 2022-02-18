@@ -13,7 +13,7 @@ import {defineComponent} from 'vue';
 import * as _ from 'lodash';
 import Color from 'color';
 
-import Handsontable from 'handsontable';
+declare const Handsontable;
 import handsomeZh from '../i18n/handsometable-zh-CN';
 Handsontable.languages.registerLanguageDictionary(handsomeZh);
 
@@ -35,7 +35,7 @@ function colorRenderer(instance, td, row, col, prop, value) {
     return td;
 }
 
-let table: Handsontable;
+let table;
 let debouncedTableChange: _.DebouncedFunc<() => void>;
 
 export default defineComponent({
