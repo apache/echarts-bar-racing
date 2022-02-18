@@ -11,9 +11,9 @@
 <script lang='ts'>
 import {defineComponent} from 'vue';
 import * as _ from 'lodash';
-import * as Color from 'color';
+import Color from 'color';
 
-import * as Handsontable from 'handsontable';
+import Handsontable from 'handsontable';
 import handsomeZh from '../i18n/handsometable-zh-CN';
 Handsontable.languages.registerLanguageDictionary(handsomeZh);
 

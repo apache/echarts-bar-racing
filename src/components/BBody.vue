@@ -197,7 +197,7 @@ import expectancy from '../data/expectancy';
 export default defineComponent({
     name: 'BBody',
     data() {
-        const i18n = this.$$i18n as any;
+        const i18n = this.$i18n as any;
         return {
             selectedDemo: 'complicated',
             demoData: expectancy,
