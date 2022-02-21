@@ -13,7 +13,7 @@
         <div
             id="bar-race-preview"
             ref="chart"
-            class="absolute bottom-4 top-14 left-5 right-5 border"
+            class="absolute bottom-4 top-16 left-5 right-5 border"
         >
         </div>
     </div>
@@ -23,6 +23,7 @@
 import {defineComponent} from 'vue';
 import * as echarts from 'echarts';
 import canvasRecord from 'canvas-record';
+import * as timeline from '../helper/timeline';
 
 const headerLength = 2;
 let chart: echarts.ECharts;
@@ -71,6 +72,7 @@ export default defineComponent({
         },
 
         captureVideo(width: number, height: number, fps: number): Promise<boolean> {
+            timeline.startMock();
             return new Promise(resolve => {
                 try {
                     this.isExportingVideo = true;
@@ -105,6 +107,7 @@ export default defineComponent({
                             hasError = true;
                         }
 
+                        timeline.stopMock();
                         this.isExportingVideo = false;
                         setTimeout(() => {
                             this.run();

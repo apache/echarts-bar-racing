@@ -10,7 +10,7 @@
                         <h2>{{$t('chartConfigs')}}</h2>
                         <el-row>
                             <el-select v-model="selectedDemo"
-                                @change="onTitleChanged()"
+                                @change="onTitleChanged($event)"
                             >
                                 <el-option
                                     value="complicated"
@@ -245,7 +245,8 @@ export default defineComponent({
             });
         },
 
-        onTitleChanged() {
+        onTitleChanged(event) {
+            console.log(event.target.value)
             if (this.selectedDemo === 'simple') {
                 this.demoData = fruit;
                 this.title = this.titleComplicated;
@@ -337,11 +338,12 @@ export default defineComponent({
 h1 {
     margin-bottom: 15px;
     font-weight: bold;
+    font-size: 1.5rem;
 }
 
 h2 {
     margin-bottom: 15px;
-    font-size: 16px;
+    font-size: 1.4rem;
     font-weight: bold;
 }
 

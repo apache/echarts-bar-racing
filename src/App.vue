@@ -12,12 +12,11 @@ import BBody from './components/BBody.vue';
 
 </script>
 
-<style scoped lang="scss">
+<style>
 #echarts-spa-app {
     font-family: Avenir, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-align: center;
     color: #2c3e50;
 
     position: absolute;
@@ -29,10 +28,18 @@ import BBody from './components/BBody.vue';
 
 .el-container {
     height: 100%;
-    margin-top: -50px;
 }
 
 .el-main {
     padding: 5px;
+}
+
+.text-base {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.text-sm {
+    font-size: 1.4rem;
 }
 </style>

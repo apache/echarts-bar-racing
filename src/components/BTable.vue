@@ -3,7 +3,7 @@
         <div slot='header' class='clearfix text-base'>
             {{$t('data')}}
         </div>
-        <div ref='table' id='table-panel' class='overflow-auto absolute bottom-4 top-14 left-5 right-5 border'>
+        <div ref='table' id='table-panel' class='overflow-auto absolute bottom-4 top-16 left-5 right-5 border'>
         </div>
     </div>
 </template>
