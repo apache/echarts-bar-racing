@@ -245,16 +245,15 @@ export default defineComponent({
             });
         },
 
-        onTitleChanged(event) {
-            console.log(event.target.value)
-            if (this.selectedDemo === 'simple') {
+        onTitleChanged(demoName) {
+            if (demoName === 'simple') {
                 this.demoData = fruit;
-                this.title = this.titleComplicated;
+                this.title = this.titleSimple;
                 this.maxDataCnt = null;
             }
-            else if (this.selectedDemo === 'complicated') {
+            else if (demoName === 'complicated') {
                 this.demoData = expectancy;
-                this.title = this.titleSimple;
+                this.title = this.titleComplicated;
                 this.maxDataCnt = 10;
             }
             else {

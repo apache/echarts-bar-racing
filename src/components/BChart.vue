@@ -21,9 +21,9 @@
 
 <script lang="ts">
 import {defineComponent} from 'vue';
+import * as timeline from '../helper/timeline';
 import * as echarts from 'echarts';
 import canvasRecord from 'canvas-record';
-import * as timeline from '../helper/timeline';
 
 const headerLength = 2;
 let chart: echarts.ECharts;

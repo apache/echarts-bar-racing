@@ -28,11 +28,14 @@ let mockedIntervalClear = null;
 if (typeof __VRT_PLAYBACK_SPEED__ === 'undefined') {
     window.__VRT_PLAYBACK_SPEED__ = 1;
 }
+
+let isMocking = false;
 const nativeRaf = window.requestAnimationFrame;
 const nativeSetTimeout = window.setTimeout;
 const nativeSetInterval = window.setInterval;
 const nativeClearTimeout = window.clearTimeout;
 const nativeClearInterval = window.clearInterval;
+const nativeDate = window.Date;
 
 const FIXED_FRAME_TIME = 16;
 const MAX_FRAME_TIME = 80;
@@ -67,12 +70,14 @@ function runFrame() {
     flushIntervalHandlers();
 }
 function timelineLoop() {
+    if (!isMocking) {
+        return;
+    }
     if (!__VRT_TIMELINE_PAUSED__) {
         runFrame();
     }
     nativeRaf(timelineLoop);
 }
-nativeRaf(timelineLoop);
 
 mockedRaf = function (cb) {
     rafCbs.push(cb);
@@ -189,8 +194,6 @@ function MockDate(...args) {
 }
 MockDate.prototype = Object.create(NativeDate.prototype);
 Object.setPrototypeOf(MockDate, NativeDate);
-MockDate.now = mockNow;
-window.Date = MockDate;
 
 // TODO Do we need to mock performance? Or leave some API that can keep real.
 
@@ -207,20 +210,37 @@ export function resume() {
     window.__VRT_TIMELINE_PAUSED__ = false;
 }
 
+window.requestAnimationFrame = function (cb) {
+    if (isMocking) {
+        mockedRaf(cb);
+    }
+    else {
+        nativeRaf(cb);
+    }
+};
+
 export function startMock() {
-    window.requestAnimationFrame = mockedRaf;
+    isMocking = true;
     window.setTimeout = mockedTimeout;
     window.setInterval = mockedInterval;
     window.clearTimeout = mockedTimeoutClear;
     window.clearInterval = mockedIntervalClear;
+    (MockDate as any).now = mockNow;
+    window.Date = MockDate;
+    rafCbs = [];
+    frameIdx = 0;
+    timelineTime = 0;
+    nativeRaf(timelineLoop);
 }
 
 export function stopMock() {
+    isMocking = false;
     window.requestAnimationFrame = nativeRaf;
     window.setTimeout = nativeSetTimeout;
     window.setInterval = nativeSetInterval;
     window.clearTimeout = nativeClearTimeout;
     window.clearInterval = nativeClearInterval;
+    window.Date = nativeDate;
 }
 
 export { nativeRaf, nativeSetInterval, nativeSetTimeout };
