@@ -10,7 +10,7 @@
             <i class="el-icon-loading"></i>
             {{$t('exporting')}}
             <el-button @click="cancelDownload()" >
-                取消
+                {{$t('cancel')}}
             </el-button>
         </div>
         <div

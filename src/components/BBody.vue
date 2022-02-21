@@ -153,10 +153,13 @@
                             </el-col>
                         </el-row>
                         <el-row>
-                            <el-button @click="downloadVideo">
+                            <el-button @click="downloadVideo" v-if="isChrome">
                                 <i class="el-icon-video-camera"></i>
                                 {{$t('generateVideo')}}
                             </el-button>
+                            <el-label class="mt-4 text-red-600" v-if="!isChrome">
+                                {{$t('videoSupported')}}
+                            </el-label>
                         </el-row>
                     </el-form>
                 </div>
@@ -204,6 +207,7 @@ export default defineComponent({
     data() {
         const i18n = this.$i18n as any;
         return {
+            isChrome: /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor),
             selectedDemo: 'complicated',
             demoData: expectancy,
             title: i18n.t('titleComplicated'),
@@ -298,8 +302,8 @@ export default defineComponent({
         async downloadVideo() {
             if (!this.width || !this.height) {
                 this.$notify.error({
-                    title: '视频高度宽度错误！',
-                    message: '高度宽度不能为 0',
+                    title: this.$i18n.t('videSizeError'),
+                    message: this.$i18n.t('videSizeErrorHint'),
                     duration: 0,
                     position: 'bottom-left'
                 });
@@ -311,7 +315,7 @@ export default defineComponent({
             this.isExportingVideo = false;
             if (isSuccess) {
                 this.$notify({
-                    title: '导出成功！',
+                    title: this.$i18n.t('videoSuccess'),
                     type: 'success',
                     duration: 3000,
                     position: 'bottom-left'
@@ -319,8 +323,8 @@ export default defineComponent({
             }
             else {
                 this.$notify.error({
-                    title: '导出失败！',
-                    message: '建议使用最新版 Chrome 或 Firefox',
+                    title: this.$i18n.t('videoFail'),
+                    message: this.$i18n.t('videoFailHint'),
                     duration: 0,
                     position: 'bottom-left'
                 });
