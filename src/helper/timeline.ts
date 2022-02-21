@@ -17,7 +17,7 @@
 * under the License.
 */
 
-declare const window, __VRT_PLAYBACK_SPEED__, __VRT_LOG_ERRORS__, __VRT_TIMELINE_PAUSED__;
+declare const window, __VRT_PLAYBACK_SPEED__, __VRT_LOG_ERRORS__;
 
 let mockedRaf = null;
 let mockedTimeout = null;
@@ -37,11 +37,9 @@ const nativeClearTimeout = window.clearTimeout;
 const nativeClearInterval = window.clearInterval;
 const nativeDate = window.Date;
 
-const FIXED_FRAME_TIME = 16;
+let fixedFrameTime = 16;
 const MAX_FRAME_TIME = 80;
 const TIMELINE_START = 1566458693300;
-
-window.__VRT_TIMELINE_PAUSED__ = true;
 
 let realFrameStartTime = 0;
 
@@ -53,7 +51,7 @@ let timelineTime = 0;
 function runFrame() {
     realFrameStartTime = NativeDate.now();
     frameIdx++;
-    timelineTime += FIXED_FRAME_TIME;
+    timelineTime += fixedFrameTime;
     const currentRafCbs = rafCbs;
     // Clear before calling the callbacks. raf may be registered in the callback
     rafCbs = [];
@@ -73,9 +71,7 @@ function timelineLoop() {
     if (!isMocking) {
         return;
     }
-    if (!__VRT_TIMELINE_PAUSED__) {
-        runFrame();
-    }
+    runFrame();
     nativeRaf(timelineLoop);
 }
 
@@ -91,7 +87,7 @@ let timeoutId = 1;
 let intervalId = 1;
 
 mockedTimeout = function (cb, timeout) {
-    const elapsedFrame = Math.ceil(Math.max(timeout || 0, 1) / FIXED_FRAME_TIME);
+    const elapsedFrame = Math.ceil(Math.max(timeout || 0, 1) / fixedFrameTime);
     timeoutHandlers.push({
         callback: cb,
         id: timeoutId,
@@ -131,7 +127,7 @@ function flushTimeoutHandlers() {
 }
 
 mockedInterval = function (cb, interval) {
-    const intervalFrame = Math.ceil(Math.max(interval || 0, 1) / FIXED_FRAME_TIME);
+    const intervalFrame = Math.ceil(Math.max(interval || 0, 1) / fixedFrameTime);
     intervalHandlers.push({
         callback: cb,
         id: intervalId,
@@ -197,19 +193,6 @@ Object.setPrototypeOf(MockDate, NativeDate);
 
 // TODO Do we need to mock performance? Or leave some API that can keep real.
 
-
-export function start() {
-    window.__VRT_TIMELINE_PAUSED__ = false;
-}
-
-export function pause() {
-    window.__VRT_TIMELINE_PAUSED__ = true;
-}
-
-export function resume() {
-    window.__VRT_TIMELINE_PAUSED__ = false;
-}
-
 window.requestAnimationFrame = function (cb) {
     if (isMocking) {
         mockedRaf(cb);
@@ -218,6 +201,10 @@ window.requestAnimationFrame = function (cb) {
         nativeRaf(cb);
     }
 };
+
+export function setFixedFrameRate(fps: number) {
+    fixedFrameTime = fps > 0 ? 1000 / fps : 16;
+}
 
 export function startMock() {
     isMocking = true;

@@ -10,7 +10,7 @@
 
 <script lang='ts'>
 import {defineComponent} from 'vue';
-import * as _ from 'lodash';
+import {debounce} from 'lodash';
 import Color from 'color';
 
 declare const Handsontable;
@@ -52,7 +52,7 @@ export default defineComponent({
     mounted() {
         this.reset();
 
-        debouncedTableChange = _.debounce(() => {
+        debouncedTableChange = debounce(() => {
             this.$emit('afterChange', this.getChartData());
         }, 500);
 

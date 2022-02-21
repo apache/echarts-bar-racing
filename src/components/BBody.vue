@@ -4,10 +4,15 @@
             <el-card class="box-card col-span-3 scroll-card">
                 <h1 slot="header" class="clearfix text-xl">
                     {{$t('toolName')}}
+                    <span id="github-button">
+                        <a class="github-button" href="https://github.com/apache/echarts-bar-racing" data-size="large" data-show-count="true" aria-label="Star apache/echarts-bar-racing on GitHub">Star</a>
+                    </span>
                 </h1>
                 <div id="el-config" class="align-middle">
                     <el-form ref="form" :disabled="isExportingVideo">
-                        <h2>{{$t('chartConfigs')}}</h2>
+                        <h2>
+                            {{$t('chartConfigs')}}
+                        </h2>
                         <el-row>
                             <el-select v-model="selectedDemo"
                                 @change="onTitleChanged($event)"
@@ -326,6 +331,10 @@ export default defineComponent({
 </script>
 
 <style scoped>
+#github-button {
+    float: right;
+}
+
 .scroll-card {
     overflow-y: auto;
 }
@@ -337,7 +346,7 @@ export default defineComponent({
 h1 {
     margin-bottom: 15px;
     font-weight: bold;
-    font-size: 1.5rem;
+    font-size: 1.75rem;
 }
 
 h2 {

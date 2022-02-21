@@ -72,11 +72,12 @@ export default defineComponent({
         },
 
         captureVideo(width: number, height: number, fps: number): Promise<boolean> {
+            timeline.setFixedFrameRate(fps);
             timeline.startMock();
             return new Promise(resolve => {
                 try {
                     this.isExportingVideo = true;
-                    this.doResetChart(width, height);
+                    this.doResetChart(width, height, 1);
                     const container = chart.getDom();
                     const canvas = container.children[0].children[0] as HTMLCanvasElement;
                     if (container.clientHeight) {
@@ -123,7 +124,7 @@ export default defineComponent({
             });
         },
 
-        doResetChart(width?: number, height?: number) {
+        doResetChart(width?: number, height?: number, dpr?: number) {
             this.clearTimeoutHandlers();
             if (chart) {
                 chart.dispose();
@@ -132,7 +133,8 @@ export default defineComponent({
 
             chart = echarts.init(this.$refs.chart as HTMLElement, null, {
                 width: width || undefined,
-                height: height || undefined
+                height: height || undefined,
+                devicePixelRatio: dpr
             });
 
             if (!this.chartData || this.chartData.length < headerLength) {
