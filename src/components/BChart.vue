@@ -9,11 +9,15 @@
         <div slot="header" class="clearfix text-base" v-if="isExportingVideo">
             <i class="el-icon-loading"></i>
             {{$t('exporting')}}
+            <el-button @click="cancelDownload()" >
+                取消
+            </el-button>
         </div>
         <div
             id="bar-race-preview"
             ref="chart"
             class="absolute bottom-4 top-16 left-5 right-5 border"
+            :class="isExportingVideo ? 'top-28' : ''"
         >
         </div>
     </div>
@@ -23,10 +27,11 @@
 import {defineComponent} from 'vue';
 import * as timeline from '../helper/timeline';
 import * as echarts from 'echarts';
-import canvasRecord from 'canvas-record';
+import WebMWriter from 'webm-writer';
 
 const headerLength = 2;
 let chart: echarts.ECharts;
+let recorder;
 
 export default defineComponent({
     name: 'BChart',
@@ -72,8 +77,6 @@ export default defineComponent({
         },
 
         captureVideo(width: number, height: number, fps: number): Promise<boolean> {
-            timeline.setFixedFrameRate(fps);
-            timeline.startMock();
             return new Promise(resolve => {
                 try {
                     this.isExportingVideo = true;
@@ -91,17 +94,34 @@ export default defineComponent({
                         }
                     }
 
-                    const recorder = canvasRecord(canvas, {
+                    recorder = new WebMWriter({
                         frameRate: fps || 30,
-                        filename: this.title || this.$t('toolName')
+                        transparent: true
                     });
 
-                    recorder.start();
+                    timeline.setFixedFrameRate(fps);
+                    timeline.onMockFaq(elapsed => {
+                        recorder.addFrame(canvas, elapsed);
+                    });
+                    timeline.startMock();
+
+                    const title = this.title || this.$t('toolName') || 'bar-racing';
 
                     this.doRun(() => {
                         let hasError = false;
                         try {
-                            recorder.stop();
+                            recorder.complete()
+                                .then(function(webMBlob) {
+                                    const url = URL.createObjectURL(webMBlob);
+                                    const link = document.createElement('a');
+                                    link.download = title;
+                                    link.href = url;
+                                    const event = new MouseEvent('click');
+                                    link.dispatchEvent(event);
+                                    setTimeout(() => {
+                                        URL.revokeObjectURL(url);
+                                    }, 1);
+                                });
                         }
                         catch (e) {
                             console.error(e);
@@ -122,6 +142,20 @@ export default defineComponent({
                     resolve(false);
                 }
             });
+        },
+
+        cancelDownload() {
+            if (recorder) {
+                recorder.complete();
+                recorder = null;
+            }
+
+            timeline.stopMock();
+            this.isExportingVideo = false;
+            setTimeout(() => {
+                this.run();
+            });
+            this.$emit('downloadCancelled');
         },
 
         doResetChart(width?: number, height?: number, dpr?: number) {
@@ -217,7 +251,8 @@ export default defineComponent({
                                 data: row.slice(1).map(str => parseInt(str, 10)),
                                 label: {
                                     valueAnimation: true
-                                }
+                                },
+                                silent: this.isExportingVideo
                             }],
                             title: [{
                                 text: row[0]

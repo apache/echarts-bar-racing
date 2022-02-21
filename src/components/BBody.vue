@@ -75,7 +75,6 @@
                                 <el-input
                                     id="input-animation-duration"
                                     type="number"
-                                    value="5000"
                                     size="medium"
                                     class="col-span-2"
                                     v-model="animationDuration"
@@ -185,6 +184,7 @@
                     :maxDataCnt="maxDataCnt"
                     :animationDuration="animationDuration"
                     :sortDuration="sortDuration"
+                    @downloadCancelled="downloadCancelled"
                 />
             </el-card>
         </div>
@@ -325,6 +325,10 @@ export default defineComponent({
                     position: 'bottom-left'
                 });
             }
+        },
+
+        downloadCancelled() {
+            this.isExportingVideo = false;
         }
     }
 })

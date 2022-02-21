@@ -14,7 +14,7 @@ const langCn: DEFAULT_LANG_TYPE = {
     maxDataPlaceholder: '不设置则显示全部',
     animationDuration: '动画时长（毫秒）',
     reorderDuration: '排序时长（毫秒）',
-    download: '下载',
+    download: '下载代码',
     videoConfig: '视频设置',
     videoWidth: '视频宽度',
     videoHeight: '视频高度',

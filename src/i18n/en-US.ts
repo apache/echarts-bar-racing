@@ -10,7 +10,7 @@ export default {
     maxDataPlaceholder: 'Display all when not set',
     animationDuration: 'Animation duration (ms)',
     reorderDuration: 'Reorder duration (ms)',
-    download: 'Download',
+    download: 'Download Code',
     videoConfig: 'Video Config',
     videoWidth: 'Video width',
     videoHeight: 'Video height',

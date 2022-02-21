@@ -120,7 +120,7 @@ function flushTimeoutHandlers() {
             }
             catch (e) {
                 // Catch error to avoid following tasks.
-                __VRT_LOG_ERRORS__(e.toString());
+                // __VRT_LOG_ERRORS__(e.toString());
             }
         }
     }
@@ -158,7 +158,7 @@ function flushIntervalHandlers() {
             }
             catch (e) {
                 // Catch error to avoid following tasks.
-                __VRT_LOG_ERRORS__(e.toString());
+                // __VRT_LOG_ERRORS__(e.toString());
             }
             handler.frame += handler.intervalFrame;
         }
@@ -193,9 +193,18 @@ Object.setPrototypeOf(MockDate, NativeDate);
 
 // TODO Do we need to mock performance? Or leave some API that can keep real.
 
+let mockFaqCb = null;
+
+export function onMockFaq(cb) {
+    mockFaqCb = cb;
+}
+
 window.requestAnimationFrame = function (cb) {
     if (isMocking) {
         mockedRaf(cb);
+        if (typeof mockFaqCb === 'function') {
+            mockFaqCb(fixedFrameTime);
+        }
     }
     else {
         nativeRaf(cb);
