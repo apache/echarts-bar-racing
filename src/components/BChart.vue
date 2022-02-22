@@ -7,7 +7,7 @@
             </a>
         </div>
         <div v-else slot="header" class="text-base flex items-center">
-            <el-progress width="30" class="mr-5" type="circle" :show-text="false" :percentage="exportingProgress"></el-progress>
+            <el-progress :width="30" class="mr-5" type="circle" :show-text="false" :percentage="exportingProgress"></el-progress>
             {{$t('exporting')}} {{exportingProgress.toFixed(0) + '%'}}
             <el-button @click="cancelDownload()" size="mini" icon="el-icon-close" class="ml-5">
                 {{$t('cancel')}}
@@ -86,7 +86,7 @@ export default defineComponent({
                 }
 
                 recorder = new WebMWriter({
-                    frameRate: fps || 30,
+                    frameRate: fps,
                     transparent: true
                 });
 
@@ -97,7 +97,7 @@ export default defineComponent({
 
                 const title = this.title || this.$t('toolName') || 'bar-racing';
 
-                await this.doRun((curr, total) => {
+                await this.doRun(fps, (curr, total) => {
                     this.exportingProgress = curr / total * 100;
                 });
                 // Canceld
@@ -225,7 +225,7 @@ export default defineComponent({
             catch (e) {}
         },
 
-        async doRun(onProgress?: (curr: number, total: number) => void) {
+        async doRun(fps = 60, onProgress?: (curr: number, total: number) => void) {
             if (!this.chartData || this.chartData.length < headerLength) {
                 return;
             }
@@ -248,6 +248,7 @@ export default defineComponent({
                     }]
                 });
 
+
                 return new Promise((resolve) => {
                     setTimeout(() => {
                         resolve(undefined);
@@ -255,16 +256,29 @@ export default defineComponent({
                 })
             }
 
+            let frameCount = 0;
+            let totalFrames = fps * this.animationDuration / 1000 * dataCnt;
+            function frameCounter() {
+                frameCount++;
+                onProgress && onProgress(frameCount, totalFrames);
+            }
+
+            if (onProgress) {
+                chart.getZr().animation.on('frame', frameCounter);
+            }
+
             for (let i = 0; i < dataCnt; ++i) {
                 onProgress && onProgress(i, dataCnt);
                 // Cancled.
                 if (!this.isExportingVideo) {
+                    chart.getZr().animation.off('frame', frameCounter);
                     return;
                 }
                 const row = that.chartData[headerLength + i + 1] as string[];
                 await step(row);
             }
 
+            chart.getZr().animation.off('frame', frameCounter);
             onProgress && onProgress(dataCnt, dataCnt);
         }
     }
