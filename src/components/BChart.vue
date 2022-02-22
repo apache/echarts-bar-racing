@@ -1,15 +1,15 @@
 <template>
     <div>
-        <div slot="header" class="clearfix text-base" v-if="!isExportingVideo">
+        <div slot="header" class="text-base" v-if="!isExportingVideo">
             {{$t('preview')}}
             <a href="javascript:;" @click="run()">
                 <i class="el-icon-refresh"></i>
             </a>
         </div>
-        <div slot="header" class="clearfix text-base" v-if="isExportingVideo">
-            <i class="el-icon-loading"></i>
-            {{$t('exporting')}}
-            <el-button @click="cancelDownload()" >
+        <div v-else slot="header" class="text-base flex items-center">
+            <el-progress width="30" class="mr-5" type="circle" :show-text="false" :percentage="exportingProgress"></el-progress>
+            {{$t('exporting')}} {{exportingProgress.toFixed(0) + '%'}}
+            <el-button @click="cancelDownload()" size="mini" icon="el-icon-close" class="ml-5">
                 {{$t('cancel')}}
             </el-button>
         </div>
@@ -51,7 +51,8 @@ export default defineComponent({
     data() {
         return {
             timeoutHandlers: [],
-            isExportingVideo: false
+            isExportingVideo: false,
+            exportingProgress: 0
         };
     },
     watch: {
@@ -96,7 +97,9 @@ export default defineComponent({
 
                 const title = this.title || this.$t('toolName') || 'bar-racing';
 
-                await this.doRun();
+                await this.doRun((curr, total) => {
+                    this.exportingProgress = curr / total * 100;
+                });
                 // Canceld
                 if (!this.isExportingVideo) {
                     return;
@@ -253,6 +256,7 @@ export default defineComponent({
             }
 
             for (let i = 0; i < dataCnt; ++i) {
+                onProgress && onProgress(i, dataCnt);
                 // Cancled.
                 if (!this.isExportingVideo) {
                     return;
@@ -260,6 +264,8 @@ export default defineComponent({
                 const row = that.chartData[headerLength + i + 1] as string[];
                 await step(row);
             }
+
+            onProgress && onProgress(dataCnt, dataCnt);
         }
     }
 })
