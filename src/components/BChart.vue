@@ -96,35 +96,29 @@ export default defineComponent({
 
                 const title = this.title || this.$t('toolName') || 'bar-racing';
 
-                let hasError = false;
-                try {
-                    await this.doRun();
-                    const webMBlob = await recorder.complete()
-                    const url = URL.createObjectURL(webMBlob);
-                    const link = document.createElement('a');
-                    link.download = title;
-                    link.href = url;
-                    const event = new MouseEvent('click');
-                    link.dispatchEvent(event);
-                    setTimeout(() => {
-                        URL.revokeObjectURL(url);
-                    }, 1);
-                }
-                catch (e) {
-                    console.error(e);
-                    hasError = true;
-                }
+                await this.doRun();
+                const webMBlob = await recorder.complete()
+                const url = URL.createObjectURL(webMBlob);
+                const link = document.createElement('a');
+                link.download = title;
+                link.href = url;
+                const event = new MouseEvent('click');
+                link.dispatchEvent(event);
+                setTimeout(() => {
+                    URL.revokeObjectURL(url);
+                }, 1);
 
                 timeline.stopMock();
                 this.isExportingVideo = false;
-
-                wait(50);
-                this.run();
-                return !hasError
             }
             catch (e) {
-                console.error(e);
+                // Reset
+                timeline.stopMock();
                 this.isExportingVideo = false;
+
+                console.error(e);
+                await wait(50);
+                this.run();
                 return false;
             }
         },
