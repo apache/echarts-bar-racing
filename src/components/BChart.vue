@@ -1,14 +1,14 @@
 <template>
     <div>
         <div slot="header" class="text-base" v-if="!isExportingVideo">
-            {{$t('preview')}}
+            {{$t('preview')}} {{formattedTotalDuration}}
             <a href="javascript:;" @click="run()">
                 <i class="el-icon-refresh"></i>
             </a>
         </div>
         <div v-else slot="header" class="text-base flex items-center">
             <el-progress :width="30" class="mr-5" type="circle" :show-text="false" :percentage="exportingProgress"></el-progress>
-            {{$t('exporting')}} {{exportingProgress.toFixed(0) + '%'}}
+            {{$t('exporting')}} {{formattedTotalDuration}} {{exportingProgress.toFixed(0) + '%'}}
             <el-button @click="cancelDownload()" size="mini" icon="el-icon-close" class="ml-5">
                 {{$t('cancel')}}
             </el-button>
@@ -28,8 +28,9 @@ import {defineComponent} from 'vue';
 import * as timeline from '../helper/timeline';
 import * as echarts from 'echarts';
 import WebMWriter from 'webm-writer';
+import format from 'format-duration'
 
-const headerLength = 2;
+const HEADER_LENGTH = 2;
 let chart: echarts.ECharts;
 let recorder;
 
@@ -61,6 +62,21 @@ export default defineComponent({
         }
     },
     mounted() {
+    },
+    computed: {
+        milestoneCount() {
+            const chartData = this.chartData;
+            if (!chartData || chartData.length < HEADER_LENGTH) {
+                return 0;
+            }
+            return chartData.length - HEADER_LENGTH - 1;
+        },
+        totalDuration() {
+            return this.animationDuration * this.milestoneCount;
+        },
+        formattedTotalDuration() {
+            return format(this.totalDuration);
+        }
     },
     methods: {
         async run() {
@@ -162,7 +178,7 @@ export default defineComponent({
                 devicePixelRatio: dpr
             });
 
-            if (!this.chartData || this.chartData.length < headerLength) {
+            if (!this.chartData || this.chartData.length < HEADER_LENGTH) {
                 return;
             }
 
@@ -186,7 +202,7 @@ export default defineComponent({
                     series: [{
                         id: 'bar',
                         type: 'bar',
-                        data: (this.chartData[headerLength] as string[]).slice(1).map(str => parseInt(str, 10)),
+                        data: (this.chartData[HEADER_LENGTH] as string[]).slice(1).map(str => parseInt(str, 10)),
                         seriesLayoutBy: 'row',
                         realtimeSort: true,
                         silent: true,
@@ -202,7 +218,7 @@ export default defineComponent({
                         left: 110
                     },
                     title: [{
-                        text: (this.chartData as any)[headerLength][0],
+                        text: (this.chartData as any)[HEADER_LENGTH][0],
                         right: 20,
                         bottom: 15,
                         textStyle: {
@@ -226,10 +242,11 @@ export default defineComponent({
         },
 
         async doRun(fps = 60, onProgress?: (curr: number, total: number) => void) {
-            if (!this.chartData || this.chartData.length < headerLength) {
+            const dataCnt = this.milestoneCount;
+            if (!dataCnt) {
                 return;
             }
-            const dataCnt = this.chartData.length - headerLength - 1;
+
             const that = this;
             const isExportingVideo = this.isExportingVideo;
 
@@ -269,13 +286,12 @@ export default defineComponent({
             }
 
             for (let i = 0; i < dataCnt; ++i) {
-                onProgress && onProgress(i, dataCnt);
                 // Cancled.
                 if (isExportingVideo && !this.isExportingVideo) {
                     chart.getZr().animation.off('frame', frameCounter);
                     return;
                 }
-                const row = that.chartData[headerLength + i + 1] as string[];
+                const row = that.chartData[HEADER_LENGTH + i + 1] as string[];
                 await step(row);
             }
 
