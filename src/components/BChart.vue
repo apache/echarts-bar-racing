@@ -97,7 +97,16 @@ export default defineComponent({
                 const title = this.title || this.$t('toolName') || 'bar-racing';
 
                 await this.doRun();
+                // Canceld
+                if (!this.isExportingVideo) {
+                    return;
+                }
                 const webMBlob = await recorder.complete()
+                // Canceld
+                if (!this.isExportingVideo) {
+                    return;
+                }
+
                 const url = URL.createObjectURL(webMBlob);
                 const link = document.createElement('a');
                 link.download = title;
@@ -110,6 +119,7 @@ export default defineComponent({
 
                 timeline.stopMock();
                 this.isExportingVideo = false;
+                return true;
             }
             catch (e) {
                 // Reset
@@ -119,7 +129,7 @@ export default defineComponent({
                 console.error(e);
                 await wait(50);
                 this.run();
-                return false;
+                return;
             }
         },
 
@@ -243,6 +253,10 @@ export default defineComponent({
             }
 
             for (let i = 0; i < dataCnt; ++i) {
+                // Cancled.
+                if (!this.isExportingVideo) {
+                    return;
+                }
                 const row = that.chartData[headerLength + i + 1] as string[];
                 await step(row);
             }
