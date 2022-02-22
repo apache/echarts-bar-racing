@@ -191,19 +191,13 @@ function MockDate(...args) {
 MockDate.prototype = Object.create(NativeDate.prototype);
 Object.setPrototypeOf(MockDate, NativeDate);
 
-// TODO Do we need to mock performance? Or leave some API that can keep real.
-
-let mockFaqCb = null;
-
-export function onMockFaq(cb) {
-    mockFaqCb = cb;
-}
+let rafCb = null;
 
 window.requestAnimationFrame = function (cb) {
     if (isMocking) {
         mockedRaf(cb);
-        if (typeof mockFaqCb === 'function') {
-            mockFaqCb(fixedFrameTime);
+        if (typeof rafCb === 'function') {
+            rafCb(fixedFrameTime);
         }
     }
     else {
@@ -215,7 +209,7 @@ export function setFixedFrameRate(fps: number) {
     fixedFrameTime = fps > 0 ? 1000 / fps : 16;
 }
 
-export function startMock() {
+export function startMock(frameCb) {
     isMocking = true;
     window.setTimeout = mockedTimeout;
     window.setInterval = mockedInterval;
@@ -226,11 +220,13 @@ export function startMock() {
     rafCbs = [];
     frameIdx = 0;
     timelineTime = 0;
+    rafCb = frameCb;
     nativeRaf(timelineLoop);
 }
 
 export function stopMock() {
     isMocking = false;
+    rafCb = null;
     window.requestAnimationFrame = nativeRaf;
     window.setTimeout = nativeSetTimeout;
     window.setInterval = nativeSetInterval;

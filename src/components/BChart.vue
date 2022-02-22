@@ -33,6 +33,12 @@ const headerLength = 2;
 let chart: echarts.ECharts;
 let recorder;
 
+function wait(time: number) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, time);
+    });
+}
+
 export default defineComponent({
     name: 'BChart',
     props: {
@@ -56,92 +62,71 @@ export default defineComponent({
     mounted() {
     },
     methods: {
-        run() {
+        async run() {
             this.doResetChart();
-            this.doRun();
+            await this.doRun();
         },
 
-        clearTimeoutHandlers() {
-            for (let i = 0; i < this.timeoutHandlers.length; ++i) {
-                clearTimeout(this.timeoutHandlers[i]);
-            }
-            this.timeoutHandlers = [];
-        },
-
-        removeTimeoutHandlers(handler: number) {
-            for (let i = 0; i < this.timeoutHandlers.length; ++i) {
-                if (this.timeoutHandlers[i] === handler) {
-                    this.timeoutHandlers.splice(i, 1);
-                }
-            }
-        },
-
-        captureVideo(width: number, height: number, fps: number): Promise<boolean> {
-            return new Promise(resolve => {
-                try {
-                    this.isExportingVideo = true;
-                    this.doResetChart(width, height, 1);
-                    const container = chart.getDom();
-                    const canvas = container.children[0].children[0] as HTMLCanvasElement;
-                    if (container.clientHeight) {
-                        if (container.clientWidth / container.clientHeight > width / height) {
-                            canvas.style.height = container.clientHeight + 'px';
-                            canvas.style.width = container.clientHeight / height * width + 'px';
-                        }
-                        else {
-                            canvas.style.width = container.clientWidth + 'px';
-                            canvas.style.height = container.clientWidth / width * height + 'px';
-                        }
+        async captureVideo(width: number, height: number, fps: number) {
+            try {
+                this.isExportingVideo = true;
+                this.doResetChart(width, height, 1);
+                const container = chart.getDom();
+                const canvas = container.children[0].children[0] as HTMLCanvasElement;
+                if (container.clientHeight) {
+                    if (container.clientWidth / container.clientHeight > width / height) {
+                        canvas.style.height = container.clientHeight + 'px';
+                        canvas.style.width = container.clientHeight / height * width + 'px';
                     }
+                    else {
+                        canvas.style.width = container.clientWidth + 'px';
+                        canvas.style.height = container.clientWidth / width * height + 'px';
+                    }
+                }
 
-                    recorder = new WebMWriter({
-                        frameRate: fps || 30,
-                        transparent: true
-                    });
+                recorder = new WebMWriter({
+                    frameRate: fps || 30,
+                    transparent: true
+                });
 
-                    timeline.setFixedFrameRate(fps);
-                    timeline.onMockFaq(elapsed => {
-                        recorder.addFrame(canvas, elapsed);
-                    });
-                    timeline.startMock();
+                timeline.setFixedFrameRate(fps);
+                timeline.startMock(elapsed => {
+                    recorder.addFrame(canvas);
+                });
 
-                    const title = this.title || this.$t('toolName') || 'bar-racing';
+                const title = this.title || this.$t('toolName') || 'bar-racing';
 
-                    this.doRun(() => {
-                        let hasError = false;
-                        try {
-                            recorder.complete()
-                                .then(function(webMBlob) {
-                                    const url = URL.createObjectURL(webMBlob);
-                                    const link = document.createElement('a');
-                                    link.download = title;
-                                    link.href = url;
-                                    const event = new MouseEvent('click');
-                                    link.dispatchEvent(event);
-                                    setTimeout(() => {
-                                        URL.revokeObjectURL(url);
-                                    }, 1);
-                                });
-                        }
-                        catch (e) {
-                            console.error(e);
-                            hasError = true;
-                        }
-
-                        timeline.stopMock();
-                        this.isExportingVideo = false;
-                        setTimeout(() => {
-                            this.run();
-                            resolve(!hasError);
-                        });
-                    });
+                let hasError = false;
+                try {
+                    await this.doRun();
+                    const webMBlob = await recorder.complete()
+                    const url = URL.createObjectURL(webMBlob);
+                    const link = document.createElement('a');
+                    link.download = title;
+                    link.href = url;
+                    const event = new MouseEvent('click');
+                    link.dispatchEvent(event);
+                    setTimeout(() => {
+                        URL.revokeObjectURL(url);
+                    }, 1);
                 }
                 catch (e) {
                     console.error(e);
-                    this.isExportingVideo = false;
-                    resolve(false);
+                    hasError = true;
                 }
-            });
+
+                timeline.stopMock();
+                this.isExportingVideo = false;
+
+                wait(50);
+                this.run();
+                return !hasError
+            }
+            catch (e) {
+                console.error(e);
+                this.isExportingVideo = false;
+                return false;
+            }
         },
 
         cancelDownload() {
@@ -159,7 +144,6 @@ export default defineComponent({
         },
 
         doResetChart(width?: number, height?: number, dpr?: number) {
-            this.clearTimeoutHandlers();
             if (chart) {
                 chart.dispose();
                 chart = null;
@@ -198,6 +182,7 @@ export default defineComponent({
                         data: (this.chartData[headerLength] as string[]).slice(1).map(str => parseInt(str, 10)),
                         seriesLayoutBy: 'row',
                         realtimeSort: true,
+                        silent: true,
                         label: {
                             show: true,
                             position: 'right'
@@ -233,39 +218,39 @@ export default defineComponent({
             catch (e) {}
         },
 
-        doRun(onCompleted?: Function) {
+        async doRun(onProgress?: (curr: number, total: number) => void) {
             if (!this.chartData || this.chartData.length < headerLength) {
                 return;
             }
             const dataCnt = this.chartData.length - headerLength - 1;
             const that = this;
+
+            function step(row) {
+                chart.setOption({
+                    series: [{
+                        type: 'bar',
+                        id: 'bar',
+                        data: row.slice(1).map(str => parseInt(str, 10)),
+                        label: {
+                            valueAnimation: true
+                        },
+                        silent: that.isExportingVideo
+                    }],
+                    title: [{
+                        text: row[0]
+                    }]
+                });
+
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve(undefined);
+                    }, that.animationDuration)
+                })
+            }
+
             for (let i = 0; i < dataCnt; ++i) {
-                (function (i: number) {
-                    let timeout: number;
-                    const timeoutCb = function () {
-                        const row = that.chartData[headerLength + i + 1] as string[];
-                        chart.setOption({
-                            series: [{
-                                type: 'bar',
-                                id: 'bar',
-                                data: row.slice(1).map(str => parseInt(str, 10)),
-                                label: {
-                                    valueAnimation: true
-                                },
-                                silent: this.isExportingVideo
-                            }],
-                            title: [{
-                                text: row[0]
-                            }]
-                        });
-                        that.removeTimeoutHandlers(timeout);
-                        if (i === dataCnt - 1 && typeof onCompleted === 'function') {
-                            setTimeout(onCompleted, that.animationDuration);
-                        }
-                    };
-                    timeout = window.setTimeout(timeoutCb, i * that.animationDuration);
-                    that.timeoutHandlers.push(timeout);
-                })(i);
+                const row = that.chartData[headerLength + i + 1] as string[];
+                await step(row);
             }
         }
     }
