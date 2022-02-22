@@ -231,6 +231,7 @@ export default defineComponent({
             }
             const dataCnt = this.chartData.length - headerLength - 1;
             const that = this;
+            const isExportingVideo = this.isExportingVideo;
 
             function step(row) {
                 chart.setOption({
@@ -270,7 +271,7 @@ export default defineComponent({
             for (let i = 0; i < dataCnt; ++i) {
                 onProgress && onProgress(i, dataCnt);
                 // Cancled.
-                if (!this.isExportingVideo) {
+                if (isExportingVideo && !this.isExportingVideo) {
                     chart.getZr().animation.off('frame', frameCounter);
                     return;
                 }
