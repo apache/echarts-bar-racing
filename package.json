@@ -20,7 +20,7 @@
         "globby": "^10.0.1",
         "node-static": "^0.7.11",
         "open": "^7.1.0",
-        "postcss": "^7.0.35",
+        "postcss": "^8.5.23",
         "postcss-import": "^14.0.2",
         "postcss-nested": "^5.0.5",
         "sass": "^1.32.13",
